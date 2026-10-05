@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-40341bcb-e9d8-4a2c-b237-c60113ad70e0/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="_ds/nocturne-40341bcb-e9d8-4a2c-b237-c60113ad70e0/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body { margin: 0; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-300); }
+button { font-family: inherit; }
+</style>
+</helmet>
+<section style="padding: 64px; display: flex; flex-direction: column; gap: 40px; background: radial-gradient(1400px 800px at 85% -200px, color-mix(in srgb, var(--color-accent-900) 70%, transparent), transparent 60%), var(--color-bg); min-height: 100vh; box-sizing: border-box;">
+  <div style="display: flex; flex-direction: column; gap: 10px; max-width: 760px;">
+    <span style="font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">Turn 1 · Two templates for a tablet</span>
+    <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 40px; letter-spacing: -0.015em;">Journey from Moscow to the whole universe</h1>
+    <p style="margin: 0; font-size: 16px; line-height: 1.6; color: var(--color-neutral-200); text-wrap: pretty;">Both are clickable. 17 stops, EN/RU toggle, 2–3 facts per stop, plus a size card. Every picture area is a photo slot: drag an image onto it. Each slot lists a photo idea, written for Pixar-style 3D renders or NASA photos.</p>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start;">
+
+    <!-- 1a · Zoom explorer -->
+    <div id="1a" style="flex: none; width: 1180px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="tag tag-outline" style="font-size: 14px; padding: 4px 12px;">1a</span>
+        <span style="font-size: 18px; font-weight: 500;">Zoom explorer</span>
+        <span style="font-size: 15px; color: var(--color-neutral-300);">Tap a zoom level or a planet. Picture and facts side by side.</span>
+      </div>
+      <div style="width: 1180px; height: 820px; box-sizing: border-box; border-radius: 32px; overflow: hidden; position: relative; border: 1px solid var(--color-neutral-800); box-shadow: var(--shadow-lg); background: radial-gradient(900px 600px at 90% -10%, color-mix(in srgb, var(--color-accent-900) 80%, transparent), transparent 60%), radial-gradient(800px 600px at -10% 110%, color-mix(in srgb, black 35%, transparent), transparent 60%), var(--color-bg); display: flex; flex-direction: column; padding: 28px 36px 28px; gap: 24px;">
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="display: flex; gap: 8px;">
+            <sc-for list="{{ a.levels }}" as="lv" hint-placeholder-count="4">
+              <button type="button" class="btn btn-secondary" onClick="{{ lv.go }}" style="min-height: 56px; padding: 0 20px; font-size: 18px; border-radius: 28px; gap: 10px; white-space: nowrap; color: {{ lv.ink }}; border-color: {{ lv.ring }};">
+                <i class="ph {{ lv.icon }}" style="font-size: 24px;"></i>{{ lv.label }}
+              </button>
+            </sc-for>
+          </div>
+          <div style="flex: 1;"></div>
+          <div class="seg" style="border-radius: 28px;">
+            <label class="seg-opt" style="padding: 0 20px; min-height: 54px; font-size: 18px; position: relative;"><input type="radio" name="langA" checked="{{ a.isEn }}" onChange="{{ a.setEn }}" style="position: absolute; opacity: 0; pointer-events: none;">EN</label>
+            <label class="seg-opt" style="padding: 0 20px; min-height: 54px; font-size: 18px; position: relative;"><input type="radio" name="langA" checked="{{ a.isRu }}" onChange="{{ a.setRu }}" style="position: absolute; opacity: 0; pointer-events: none;">RU</label>
+          </div>
+          <button type="button" class="btn btn-primary" onClick="{{ a.home }}" style="flex: none; min-height: 56px; padding: 0 20px; border-radius: 28px; gap: 10px; font-size: 18px; white-space: nowrap;"><i class="ph ph-globe-hemisphere-east" style="font-size: 26px;"></i>{{ a.backLabel }}</button>
+        </div>
+
+        <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 40px;">
+          <div class="lighten" style="position: relative; border-radius: 24px; overflow: hidden; background: var(--color-neutral-900);">
+            <sc-for list="{{ a.stops }}" as="s" hint-placeholder-count="0">
+              <sc-if value="{{ s.active }}">
+                <image-slot id="explorer-{{ s.id }}" shape="rect" placeholder="{{ s.photo }}"></image-slot>
+              </sc-if>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 22px; min-width: 0; padding-top: 8px;">
+            <span style="font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">{{ a.kicker }}</span>
+            <h2 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 60px; line-height: 1.05; letter-spacing: -0.02em;">{{ a.title }}</h2>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <sc-for list="{{ a.facts }}" as="f" hint-placeholder-count="3">
+                <div style="display: flex; gap: 14px; align-items: flex-start;">
+                  <span style="flex: none; width: 32px; height: 32px; border-radius: 16px; border: 1px solid var(--color-accent); color: var(--color-accent); display: flex; align-items: center; justify-content: center; font-size: 16px; margin-top: 1px;">{{ f.n }}</span>
+                  <p style="margin: 0; font-size: 22px; line-height: 1.4; text-wrap: pretty;">{{ f.text }}</p>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex: 1;"></div>
+            <sc-if value="{{ showSize }}" hint-placeholder-val="{{ true }}">
+              <div class="card" style="padding: 18px 20px; gap: 10px; border-radius: 18px; background: var(--color-surface); border: 1px solid var(--color-neutral-800);">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.3; white-space: nowrap; color: var(--color-accent-300);"><i class="ph {{ a.sizeIcon }}" style="font-size: 22px;"></i>{{ a.sizeKicker }}</span>
+                <p style="margin: 0; font-size: 21px; line-height: 1.4; text-wrap: pretty;">{{ a.size }}</p>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 20px; min-height: 112px;">
+          <button type="button" class="btn btn-secondary" onClick="{{ a.prev }}" disabled="{{ a.noPrev }}" aria-label="Back" style="width: 64px; height: 64px; border-radius: 32px; padding: 0; flex: none;"><i class="ph ph-arrow-left" style="font-size: 28px;"></i></button>
+          <div style="flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 0; overflow-x: auto; scrollbar-width: none;">
+            <sc-for list="{{ a.orbs }}" as="o" hint-placeholder-count="4">
+              <button type="button" onClick="{{ o.go }}" style="flex: none; min-width: 58px; min-height: 108px; padding: 4px 2px; background: transparent; border: 0; border-radius: 14px; color: {{ o.ink }}; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; cursor: pointer; font-size: 15px;" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);">
+                <span style="width: {{ o.px }}px; height: {{ o.px }}px; border-radius: 50%; background: radial-gradient(circle at 32% 30%, var(--color-neutral-300), var(--color-neutral-700) 70%); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px {{ o.ring }};"></span>
+                <span style="white-space: nowrap; font-size: 14px;">{{ o.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ a.hasNext }}" hint-placeholder-val="{{ true }}">
+            <button type="button" class="btn btn-primary" onClick="{{ a.next }}" style="flex: none; min-height: 72px; padding: 0 28px; border-radius: 36px; gap: 14px; text-align: left;">
+              <span style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent-300);">{{ a.nextTop }}</span>
+                <span style="font-size: 22px; color: var(--color-text);">{{ a.nextLabel }}</span>
+              </span>
+              <i class="ph {{ a.nextIcon }}" style="font-size: 30px;"></i>
+            </button>
+          </sc-if>
+          
+        </div>
+      </div>
+    </div>
+
+    <!-- 1b · Storybook -->
+    <div id="1b" style="flex: none; width: 1180px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="tag tag-outline" style="font-size: 14px; padding: 4px 12px;">1b</span>
+        <span style="font-size: 18px; font-weight: 500;">Storybook</span>
+        <span style="font-size: 15px; color: var(--color-neutral-300);">Full-screen picture, one page per stop. Best for reading together.</span>
+      </div>
+      <div style="width: 1180px; height: 820px; box-sizing: border-box; border-radius: 32px; overflow: hidden; position: relative; border: 1px solid var(--color-neutral-800); box-shadow: var(--shadow-lg); background: var(--color-bg);">
+        <div class="lighten" style="position: absolute; inset: 0;">
+          <sc-for list="{{ b.stops }}" as="s" hint-placeholder-count="0">
+            <sc-if value="{{ s.active }}">
+              <image-slot id="story-{{ s.id }}" shape="rect" placeholder="{{ s.photo }}"></image-slot>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--color-bg) 96%, transparent) 0%, color-mix(in srgb, var(--color-bg) 80%, transparent) 30%, transparent 58%), linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 85%, transparent), transparent 18%);"></div>
+
+        <div style="position: absolute; left: 36px; right: 36px; top: 28px; display: flex; align-items: center; gap: 20px;">
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">{{ b.kicker }}</span>
+            <div style="display: flex; align-items: center; gap: 2px;">
+              <sc-for list="{{ b.dots }}" as="d" hint-placeholder-count="17">
+                <button type="button" onClick="{{ d.go }}" aria-label="{{ d.label }}" style="width: {{ d.w }}px; height: 44px; padding: 0; margin-left: {{ d.gap }}px; background: transparent; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                  <span style="display: block; width: 100%; height: 6px; border-radius: 3px; background: {{ d.fill }};"></span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <div class="seg" style="border-radius: 28px; background: color-mix(in srgb, var(--color-bg) 70%, transparent);">
+            <label class="seg-opt" style="padding: 0 20px; min-height: 54px; font-size: 18px; position: relative;"><input type="radio" name="langB" checked="{{ b.isEn }}" onChange="{{ b.setEn }}" style="position: absolute; opacity: 0; pointer-events: none;">EN</label>
+            <label class="seg-opt" style="padding: 0 20px; min-height: 54px; font-size: 18px; position: relative;"><input type="radio" name="langB" checked="{{ b.isRu }}" onChange="{{ b.setRu }}" style="position: absolute; opacity: 0; pointer-events: none;">RU</label>
+          </div>
+          <button type="button" class="btn btn-primary" onClick="{{ b.home }}" style="min-height: 56px; padding: 0 20px; border-radius: 28px; gap: 10px; font-size: 18px; white-space: nowrap; background: color-mix(in srgb, var(--color-bg) 70%, transparent);"><i class="ph ph-globe-hemisphere-east" style="font-size: 26px;"></i>{{ b.backLabel }}</button>
+        </div>
+
+        <button type="button" class="btn btn-secondary" onClick="{{ b.prev }}" disabled="{{ b.noPrev }}" aria-label="Back" style="position: absolute; left: 24px; top: 330px; width: 80px; height: 80px; border-radius: 40px; padding: 0; background: color-mix(in srgb, var(--color-bg) 65%, transparent);"><i class="ph ph-caret-left" style="font-size: 36px;"></i></button>
+        <button type="button" class="btn btn-primary" onClick="{{ b.next }}" disabled="{{ b.noNext }}" aria-label="Next" style="position: absolute; right: 24px; top: 330px; width: 80px; height: 80px; border-radius: 40px; padding: 0; background: color-mix(in srgb, var(--color-bg) 65%, transparent);"><i class="ph ph-caret-right" style="font-size: 36px;"></i></button>
+
+        <div style="position: absolute; left: 56px; right: 56px; bottom: 44px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; align-items: end; pointer-events: none;">
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 76px; line-height: 1; letter-spacing: -0.025em;">{{ b.title }}</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-width: 640px;">
+              <sc-for list="{{ b.facts }}" as="f" hint-placeholder-count="3">
+                <p style="margin: 0; font-size: 23px; line-height: 1.4; text-wrap: pretty;">{{ f.text }}</p>
+              </sc-for>
+            </div>
+          </div>
+          <sc-if value="{{ showSize }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 10px; padding: 18px 20px; border-radius: 18px; border: 1px solid var(--color-accent-700); background: color-mix(in srgb, var(--color-bg) 82%, transparent);">
+              <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.3; white-space: nowrap; color: var(--color-accent-300);"><i class="ph {{ b.sizeIcon }}" style="font-size: 22px;"></i>{{ b.sizeKicker }}</span>
+              <p style="margin: 0; font-size: 20px; line-height: 1.4; text-wrap: pretty;">{{ b.size }}</p>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ru&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ru'&quot;},&quot;showSize&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const LEVELS = [
+  { id: 'earth', en: 'Earth', ru: 'Земля', icon: 'ph-globe-hemisphere-east' },
+  { id: 'solar', en: 'Solar system', ru: 'Солнечная система', icon: 'ph-sun' },
+  { id: 'galaxy', en: 'Galaxy', ru: 'Галактика', icon: 'ph-spiral' },
+  { id: 'universe', en: 'Universe', ru: 'Вселенная', icon: 'ph-sparkle' },
+];
+const S = (id, lv, px, en, ru, fe, fr, se, sr, kind, photo) => ({ id, lv, px, en, ru, fe, fr, se, sr, kind, photo });
+const STOPS = [
+  S('moscow', 'earth', 30, 'Moscow', 'Москва',
+    ['Moscow is our city. More than 13 million people live here.', 'The Kremlin walls are made of red brick and are over 500 years old.', 'The domes of St. Basil’s Cathedral look like swirly candy.'],
+    ['Москва — наш город. Здесь живут больше 13 миллионов человек.', 'Стены Кремля из красного кирпича. Им больше 500 лет.', 'Купола храма Василия Блаженного похожи на разноцветные конфеты.'],
+    'About 35 football fields would fit inside the Kremlin walls.', 'Внутри стен Кремля поместилось бы около 35 футбольных полей.', 'compare',
+    'Red Square at dusk, Pixar-style 3D: St Basil’s candy domes glowing, Kremlin red stars lit, a boy with a toy rocket waving'),
+  S('russia', 'earth', 42, 'Russia', 'Россия',
+    ['Russia is the biggest country on Earth.', 'Russia has 11 time zones.', 'When kids in Moscow go to bed, kids in the Far East are already waking up.'],
+    ['Россия — самая большая страна на Земле.', 'В России 11 часовых поясов.', 'Когда дети в Москве ложатся спать, на Дальнем Востоке дети уже просыпаются.'],
+    'A train from Moscow to Vladivostok takes about 7 days.', 'Поезд из Москвы во Владивосток едет около 7 дней.', 'compare',
+    'Cartoon 3D globe tilted to show Russia, soft clay look, a glowing pin on Moscow'),
+  S('earth', 'earth', 58, 'Earth', 'Земля',
+    ['Earth is our home. It is the only planet where we have found life.', 'Most of Earth is covered by oceans.', 'Earth spins around once a day. That’s why we have day and night.'],
+    ['Земля — наш дом. Это единственная планета, где мы нашли жизнь.', 'Большая часть Земли покрыта океанами.', 'Земля делает один оборот за сутки — поэтому бывают день и ночь.'],
+    'A plane would need about 2 days to fly all the way around Earth.', 'Самолёту нужно около 2 дней, чтобы облететь всю Землю.', 'compare',
+    'Earth floating in space, Pixar-style: fluffy clouds, sunlit blue oceans, on black. Or NASA “Blue Marble”'),
+  S('moon', 'earth', 32, 'The Moon', 'Луна',
+    ['The Moon travels around Earth.', 'There is no air on the Moon, so astronauts wear space suits.', 'Astronauts’ footprints are still there. There is no wind to blow them away.'],
+    ['Луна летает вокруг Земли.', 'На Луне нет воздуха, поэтому космонавты ходят в скафандрах.', 'Следы астронавтов до сих пор на Луне — там нет ветра, который их сдует.'],
+    'About 50 Moons would fit inside Earth.', 'В Землю поместилось бы около 50 Лун.', 'count',
+    'Moon close-up with a tiny astronaut and flag, soft 3D render on black. Or a NASA Apollo photo'),
+  S('sun', 'solar', 76, 'The Sun', 'Солнце',
+    ['The Sun is a star: a giant glowing ball of hot gas.', 'It gives us light and keeps Earth warm.', 'Never look straight at the Sun. It can hurt your eyes!'],
+    ['Солнце — это звезда, огромный светящийся шар из горячего газа.', 'Оно дарит нам свет и согревает Землю.', 'Никогда не смотри прямо на Солнце — это вредно для глаз!'],
+    'More than 1 million Earths would fit inside the Sun.', 'В Солнце поместилось бы больше миллиона Земель.', 'count',
+    'Friendly glowing Sun on black, swirly orange surface, 3D render. Or a NASA SDO image'),
+  S('mercury', 'solar', 22, 'Mercury', 'Меркурий',
+    ['Mercury is the closest planet to the Sun, and the smallest.', 'A year on Mercury lasts only 88 days.', 'Days there are super hot and nights are freezing cold.'],
+    ['Меркурий — самая близкая к Солнцу и самая маленькая планета.', 'Год на Меркурии длится всего 88 дней.', 'Днём там очень жарко, а ночью очень холодно.'],
+    'Mercury is only a little bigger than our Moon.', 'Меркурий лишь немного больше нашей Луны.', 'compare',
+    'Small grey cratered planet beside a huge Sun glow, 3D render on black'),
+  S('venus', 'solar', 36, 'Venus', 'Венера',
+    ['Venus is the hottest planet, hotter than an oven!', 'It is wrapped in thick yellow clouds.', 'Venus spins backwards, so the Sun rises in the west.'],
+    ['Венера — самая горячая планета, горячее духовки!', 'Она укрыта толстыми жёлтыми облаками.', 'Венера крутится в обратную сторону, и Солнце там встаёт на западе.'],
+    'Venus is almost the same size as Earth, like a twin.', 'Венера почти такого же размера, как Земля, — как сестра-близнец.', 'compare',
+    'Yellow cloudy planet, soft glossy 3D render on black'),
+  S('mars', 'solar', 28, 'Mars', 'Марс',
+    ['Mars is the red planet. Its dust is like rust.', 'It has the tallest volcano we know: Olympus Mons.', 'Robot rovers drive on Mars and send us pictures.'],
+    ['Марс — красная планета. Его пыль похожа на ржавчину.', 'На Марсе самый высокий известный вулкан — гора Олимп.', 'По Марсу ездят роботы-марсоходы и присылают нам фотографии.'],
+    'Mars is about half as wide as Earth.', 'Марс примерно вдвое меньше Земли в ширину.', 'compare',
+    'Red planet with a little rover next to a giant volcano, Pixar-style'),
+  S('asteroids', 'solar', 20, 'Asteroid belt', 'Пояс астероидов',
+    ['Millions of space rocks fly around the Sun between Mars and Jupiter.', 'Some are as small as pebbles, some as big as a city.'],
+    ['Между Марсом и Юпитером вокруг Солнца летают миллионы камней.', 'Одни маленькие, как галька, другие большие, как город.'],
+    'Even with millions of rocks, there is so much space between them that spaceships fly through safely.', 'Даже с миллионами камней там так просторно, что космические корабли пролетают спокойно.', 'compare',
+    'Rocky asteroids tumbling past, a small spaceship weaving through, 3D render'),
+  S('jupiter', 'solar', 68, 'Jupiter', 'Юпитер',
+    ['Jupiter is the biggest planet. It is made of gas, so you can’t stand on it.', 'The Great Red Spot is a storm bigger than Earth.', 'Jupiter has more than 90 moons.'],
+    ['Юпитер — самая большая планета. Он из газа, на нём нельзя стоять.', 'Большое красное пятно — это буря больше, чем вся Земля.', 'У Юпитера больше 90 спутников.'],
+    'About 1,300 Earths would fit inside Jupiter.', 'В Юпитер поместилось бы около 1300 Земель.', 'count',
+    'Striped giant with the Great Red Spot, a tiny Earth beside it for scale'),
+  S('saturn', 'solar', 58, 'Saturn', 'Сатурн',
+    ['Saturn’s rings are made of ice and rocks.', 'Saturn is so light it could float in a giant bathtub.'],
+    ['Кольца Сатурна сделаны из льда и камней.', 'Сатурн такой лёгкий, что поплыл бы в огромной ванне.'],
+    'About 760 Earths would fit inside Saturn.', 'В Сатурн поместилось бы около 760 Земель.', 'count',
+    'Saturn with sparkling ice rings, glossy 3D render on black'),
+  S('uranus', 'solar', 44, 'Uranus', 'Уран',
+    ['Uranus rolls around the Sun on its side, like a ball.', 'It is an icy, blue-green planet.'],
+    ['Уран катится вокруг Солнца на боку, как мячик.', 'Это ледяная голубовато-зелёная планета.'],
+    'About 63 Earths would fit inside Uranus.', 'В Уран поместилось бы около 63 Земель.', 'count',
+    'Blue-green planet tipped on its side with faint rings'),
+  S('neptune', 'solar', 42, 'Neptune', 'Нептун',
+    ['Neptune is the farthest planet from the Sun.', 'It has the fastest winds, faster than a jet plane.', 'One year on Neptune lasts 165 Earth years.'],
+    ['Нептун — самая далёкая от Солнца планета.', 'Там самые сильные ветры — быстрее реактивного самолёта.', 'Один год на Нептуне длится 165 земных лет.'],
+    'About 57 Earths would fit inside Neptune.', 'В Нептун поместилось бы около 57 Земель.', 'count',
+    'Deep blue planet with white wind streaks, 3D render on black'),
+  S('pluto', 'solar', 16, 'Pluto', 'Плутон',
+    ['Pluto is a dwarf planet, smaller than our Moon.', 'It has a big heart-shaped patch of ice.', 'Pluto is so far away that the Sun looks like a bright star there.'],
+    ['Плутон — карликовая планета, он меньше нашей Луны.', 'На нём есть большое ледяное пятно в форме сердца.', 'Плутон так далеко, что Солнце там похоже на яркую звезду.'],
+    'Pluto is narrower than Russia.', 'Плутон меньше, чем Россия в ширину.', 'compare',
+    'Little icy planet with a bright heart-shaped patch, NASA New Horizons style'),
+  S('milkyway', 'galaxy', 64, 'Milky Way', 'Млечный Путь',
+    ['Our Sun is one of billions of stars in the Milky Way galaxy.', 'It looks like a giant spinning pinwheel.', 'On a dark night outside the city you can see it as a milky stripe in the sky.'],
+    ['Наше Солнце — одна из миллиардов звёзд галактики Млечный Путь.', 'Она похожа на огромную крутящуюся вертушку.', 'Тёмной ночью за городом её видно как молочную полосу на небе.'],
+    'If you counted one star every second, it would take thousands of years.', 'Если считать по одной звезде в секунду, понадобятся тысячи лет.', 'count',
+    'Spiral galaxy seen from above, a glowing “You are here” arrow near the edge'),
+  S('andromeda', 'galaxy', 56, 'Andromeda', 'Андромеда',
+    ['Andromeda is our closest big neighbor galaxy.', 'It has even more stars than the Milky Way.', 'Its light travels 2.5 million years to reach us.'],
+    ['Андромеда — наша ближайшая большая соседка-галактика.', 'В ней ещё больше звёзд, чем в Млечном Пути.', 'Её свет летит к нам 2,5 миллиона лет.'],
+    'The light we see left Andromeda before there were any people on Earth.', 'Свет, который мы видим, вылетел из Андромеды, когда на Земле ещё не было людей.', 'compare',
+    'Andromeda galaxy big and bright, the Milky Way small in a corner'),
+  S('universe', 'universe', 72, 'The universe', 'Вселенная',
+    ['The universe is everything: all the galaxies, stars, planets and us.', 'There are more stars than grains of sand on all of Earth’s beaches.', 'The universe is still growing.'],
+    ['Вселенная — это всё: все галактики, звёзды, планеты и мы.', 'Звёзд во Вселенной больше, чем песчинок на всех пляжах Земли.', 'Вселенная до сих пор растёт.'],
+    'And on one small blue planet, in a city called Moscow, there’s you.', 'А на маленькой голубой планете, в городе Москве, есть ты.', 'home',
+    'Deep field full of colorful galaxies (NASA Webb or Hubble Deep Field)'),
+];
+const UI = {
+  en: { stop: (i, n) => `Stop ${i} of ${n}`, back: 'Back to Earth', next: 'Next', zoom: 'Zoom out', size: { compare: 'How big? How far?', count: 'How many fit?', home: 'Where are we?' } },
+  ru: { stop: (i, n) => `Остановка ${i} из ${n}`, back: 'Назад на Землю', next: 'Дальше', zoom: 'Отдаляемся', size: { compare: 'Какой размер?', count: 'Сколько поместится?', home: 'Где мы?' } },
+};
+const SIZE_ICON = { compare: 'ph-ruler', count: 'ph-circles-three-plus', home: 'ph-map-pin' };
+
+class Component extends DCLogic {
+  state = { a: 0, b: 0, la: null, lb: null };
+
+  view(k) {
+    const idx = this.state[k];
+    const lang = this.state['l' + k] ?? this.props.startLang ?? 'en';
+    const t = UI[lang];
+    const st = STOPS[idx];
+    const lvl = LEVELS.find(l => l.id === st.lv);
+    const go = i => () => this.setState({ [k]: Math.max(0, Math.min(STOPS.length - 1, i)) });
+    const setLang = l => () => this.setState({ ['l' + k]: l });
+    const nxt = STOPS[idx + 1];
+    const crossing = nxt && nxt.lv !== st.lv;
+    const nextLvl = nxt && LEVELS.find(l => l.id === nxt.lv);
+    let prevLv = null;
+    return {
+      isEn: lang === 'en', isRu: lang === 'ru', setEn: setLang('en'), setRu: setLang('ru'),
+      kicker: `${lvl[lang]} · ${t.stop(idx + 1, STOPS.length)}`,
+      title: st[lang],
+      facts: (lang === 'en' ? st.fe : st.fr).map((text, i) => ({ text, n: i + 1 })),
+      size: lang === 'en' ? st.se : st.sr,
+      sizeKicker: t.size[st.kind], sizeIcon: SIZE_ICON[st.kind],
+      backLabel: t.back,
+      stops: STOPS.map((s, i) => ({ id: s.id, active: i === idx, photo: 'Photo idea: ' + s.photo })),
+      levels: LEVELS.map(l => {
+        const on = l.id === st.lv;
+        return { label: l[lang], icon: l.icon, go: go(STOPS.findIndex(s => s.lv === l.id)),
+          ink: on ? 'var(--color-accent)' : 'var(--color-neutral-200)', ring: on ? 'var(--color-accent)' : 'var(--color-divider)' };
+      }),
+      orbs: STOPS.map((s, i) => ({ s, i })).filter(o => o.s.lv === st.lv).map(({ s, i }) => ({
+        label: s[lang], px: s.px, go: go(i),
+        ink: i === idx ? 'var(--color-accent)' : 'var(--color-neutral-200)',
+        ring: i === idx ? 'var(--color-accent)' : 'transparent',
+      })),
+      dots: STOPS.map((s, i) => {
+        const gap = prevLv && prevLv !== s.lv ? 14 : 0; prevLv = s.lv;
+        return { go: go(i), label: s[lang], w: i === idx ? 52 : 30, gap,
+          fill: i === idx ? 'var(--color-accent)' : i < idx ? 'var(--color-accent-700)' : 'var(--color-neutral-700)' };
+      }),
+      hasNext: !!nxt, noNext: !nxt, noPrev: idx === 0,
+      next: go(idx + 1), prev: go(idx - 1), home: go(0),
+      nextTop: crossing ? t.zoom : t.next,
+      nextLabel: nxt ? (crossing ? nextLvl[lang] : nxt[lang]) : '',
+      nextIcon: crossing ? 'ph-arrows-out' : 'ph-arrow-right',
+    };
+  }
+
+  renderVals() {
+    return { a: this.view('a'), b: this.view('b'), showSize: this.props.showSize ?? true };
+  }
+}
+</script>
+</body>
+</html>

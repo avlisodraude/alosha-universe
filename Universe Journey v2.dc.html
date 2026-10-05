@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-40341bcb-e9d8-4a2c-b237-c60113ad70e0/styles.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="_ds/nocturne-40341bcb-e9d8-4a2c-b237-c60113ad70e0/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<script src="./keyed-sprite.js"></script>
+<script src="./universe-data.js"></script>
+<script src="./universe-extras.js"></script>
+<style>
+html, body { margin: 0; height: 100%; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow: hidden; }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-300); }
+button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+</style>
+</helmet>
+<div ref="{{ wrapRef }}" style="position: fixed; inset: 0; overflow: hidden; background: var(--color-bg);">
+  <div ref="{{ stageRef }}" onPointerDown="{{ pDown }}" onPointerUp="{{ pUp }}" style="position: absolute; left: 50%; top: 50%; width: 1180px; height: 820px; translate: -50% -50%; transform-origin: 50% 50%; overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none; background: radial-gradient(900px 640px at 85% -10%, color-mix(in srgb, var(--color-accent-900) 85%, transparent), transparent 62%), radial-gradient(900px 700px at -10% 110%, color-mix(in srgb, black 40%, transparent), transparent 60%), var(--color-bg);">
+    <canvas ref="{{ starsRef }}" style="position: absolute; inset: 0; width: 1180px; height: 820px; pointer-events: none;"></canvas>
+
+    <div ref="{{ contentRef }}" style="position: absolute; inset: 0; transform-origin: 66% 44%;">
+      <sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+        <canvas ref="{{ mapRef }}" onPointerDown="{{ mapTap }}" style="position: absolute; left: 420px; top: 84px; width: 760px; height: 620px; cursor: pointer;"></canvas>
+        <div style="position: absolute; right: 32px; top: 104px; white-space: nowrap; display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 24px; border: 1px solid var(--color-accent-700); background: color-mix(in srgb, var(--color-bg) 80%, transparent); font-size: 18px; color: var(--color-accent-200); pointer-events: none;"><i class="ph ph-hand-tap" style="font-size: 24px; color: var(--color-accent);"></i>{{ mapHint }}</div>
+      </sc-if>
+      <sc-if value="{{ isPic }}" hint-placeholder-val="{{ true }}">
+        <div ref="{{ bobRef }}" class="lighten" style="position: absolute; left: 520px; top: 92px; width: 620px; height: 540px;">
+          <div ref="{{ wigRef }}" onPointerDown="{{ wiggle }}" style="width: 100%; height: 100%; border-radius: 32px; overflow: hidden;">
+            <sc-for list="{{ stops }}" as="s" hint-placeholder-count="0">
+              <sc-if value="{{ s.showVideo }}">
+                <video ref="{{ videoRef }}" src="{{ s.video }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+              </sc-if>
+              <sc-if value="{{ s.showSlot }}">
+                <image-slot id="v2-{{ s.id }}" shape="rounded" radius="32" src="{{ s.src }}" placeholder="{{ s.ph }}"></image-slot>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showGameBtn }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn btn-primary" onClick="{{ openGame }}" style="position: absolute; left: 740px; top: 588px; min-height: 60px; padding: 0 24px; border-radius: 30px; gap: 10px; font-size: 21px; white-space: nowrap; background: var(--color-bg); box-shadow: 0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent);"><i class="ph ph-magnifying-glass" style="font-size: 26px;"></i>{{ gameLabel }}</button>
+      </sc-if>
+      <sc-if value="{{ showCount }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; left: 520px; top: 92px; width: 620px; height: 540px; box-sizing: border-box; border-radius: 32px; border: 1px solid var(--color-accent-700); background: color-mix(in srgb, var(--color-bg) 90%, transparent); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px; padding: 0 28px;">
+          <canvas ref="{{ countRef }}" style="width: 340px; height: 340px; flex: none;"></canvas>
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+            <span ref="{{ numRef }}" style="font-family: var(--font-heading); font-weight: 500; font-size: 44px; line-height: 1; letter-spacing: -0.02em; white-space: nowrap; font-feature-settings: 'tnum' 1; color: var(--color-text);">0</span>
+            <span style="font-size: 20px; color: var(--color-accent-200);">{{ countUnit }}</span>
+          </div>
+          <button type="button" class="btn btn-secondary" onClick="{{ closeCount }}" aria-label="Close" style="position: absolute; right: 16px; top: 16px; width: 52px; height: 52px; border-radius: 26px; padding: 0;"><i class="ph ph-x" style="font-size: 24px;"></i></button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ game }}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; left: 500px; top: 92px; width: 650px; height: 560px; box-sizing: border-box; border-radius: 32px; border: 1px solid var(--color-accent-700); background: color-mix(in srgb, var(--color-bg) 92%, transparent); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 32px;">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);"><i class="ph ph-magnifying-glass" style="font-size: 20px;"></i>{{ gameLabel }}</span>
+          <h2 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 34px; line-height: 1.2; text-align: center; text-wrap: balance; max-width: 520px;">{{ gameQ }}</h2>
+          <div style="display: flex; gap: 28px; justify-content: center;">
+            <sc-for list="{{ choices }}" as="c" hint-placeholder-count="3">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 160px;">
+                <button type="button" onClick="{{ c.pick }}" aria-label="{{ c.label }}" style="width: 150px; height: 150px; border-radius: 75px; padding: 0; border: 3px solid {{ c.ring }}; background: var(--color-neutral-900); cursor: pointer; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: {{ c.glow }};" style-hover="border-color: var(--color-accent);">
+                  <sc-if value="{{ c.hasImg }}"><span style="display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; background-image: {{ c.bg }};"></span></sc-if>
+                  <sc-if value="{{ c.hasColor }}"><span style="width: 112px; height: 112px; border-radius: 56px; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.7), {{ c.color }} 42%, rgba(8,10,20,1) 115%);"></span></sc-if>
+                  <sc-if value="{{ c.hasIcon }}"><i class="ph {{ c.icon }}" style="font-size: 72px; color: var(--color-accent-200);"></i></sc-if>
+                </button>
+                <span style="font-size: 21px; text-align: center; line-height: 1.25;">{{ c.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p ref="{{ gameMsgRef }}" style="margin: 0; min-height: 34px; font-size: 26px; color: var(--color-accent-200);">{{ gameMsg }}</p>
+          <button type="button" class="btn btn-secondary" onClick="{{ closeGame }}" aria-label="Close" style="position: absolute; right: 16px; top: 16px; width: 52px; height: 52px; border-radius: 26px; padding: 0;"><i class="ph ph-x" style="font-size: 24px;"></i></button>
+        </div>
+      </sc-if>
+
+      <div style="position: absolute; left: 140px; top: 40px; width: 380px; display: flex; flex-direction: column; gap: 12px; pointer-events: none;">
+        <span style="font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">{{ kicker }}</span>
+        <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 66px; line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance;">{{ title }}</h1>
+      </div>
+
+      <div style="position: absolute; left: 128px; bottom: 36px; width: 600px; display: flex; align-items: flex-end; gap: 14px;">
+        <div ref="{{ mascotBobRef }}" data-sprite-host style="flex: none; width: 128px; height: 176px;">
+          <div ref="{{ mascotRef }}" onClick="{{ mascotTap }}" style="width: 128px; height: 176px; cursor: pointer;">
+            <keyed-sprite src="{{ mascotSrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+          </div>
+        </div>
+        <div class="card" style="flex: 1; min-width: 0; padding: 18px 20px 14px; gap: 12px; border-radius: 22px 22px 22px 6px; background: color-mix(in srgb, var(--color-surface) 92%, transparent); border: 1px solid var(--color-neutral-700); box-shadow: var(--shadow-md);">
+          <div ref="{{ bubbleRef }}" style="display: flex; flex-direction: column; gap: 8px; transform-origin: 0 100%;">
+            <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 1.3; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent-300); white-space: nowrap;"><i class="ph {{ itemIcon }}" style="font-size: 20px;"></i>{{ itemKicker }}</span>
+            <p style="margin: 0; font-size: 23px; line-height: 1.38; text-wrap: pretty; min-height: 64px;">{{ itemText }}</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; gap: 6px; flex: 1;">
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="4">
+                <button type="button" onClick="{{ d.go }}" aria-label="{{ d.label }}" style="width: {{ d.w }}px; height: 40px; padding: 0; border: 0; background: transparent; cursor: pointer; display: flex; align-items: center;"><span style="display: block; width: 100%; height: 6px; border-radius: 3px; background: {{ d.fill }};"></span></button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ showMeVis }}" hint-placeholder-val="{{ false }}">
+              <button type="button" class="btn btn-primary" onClick="{{ showMe }}" style="min-height: 52px; padding: 0 18px; border-radius: 26px; font-size: 18px; gap: 8px; white-space: nowrap;"><i class="ph ph-play" style="font-size: 20px;"></i>{{ showMeLabel }}</button>
+            </sc-if>
+            <button type="button" class="btn btn-secondary" onClick="{{ speak }}" aria-label="Read aloud" style="width: 52px; height: 52px; border-radius: 26px; padding: 0;"><i class="ph ph-speaker-high" style="font-size: 24px;"></i></button>
+            <button type="button" class="btn btn-secondary" onClick="{{ nextItem }}" disabled="{{ lastItem }}" aria-label="Next fact" style="width: 52px; height: 52px; border-radius: 26px; padding: 0;"><i class="ph ph-arrow-right" style="font-size: 24px;"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position: absolute; left: 24px; top: 110px; width: 88px; display: flex; flex-direction: column; align-items: center; gap: 18px;">
+      <div style="position: absolute; top: 0; bottom: 30px; left: 43px; width: 1px; background: linear-gradient(to bottom, transparent, var(--color-neutral-700) 48px calc(100% - 48px), transparent);"></div>
+      <sc-for list="{{ ladder }}" as="lv" hint-placeholder-count="4">
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <button type="button" class="btn btn-secondary" onClick="{{ lv.go }}" aria-label="{{ lv.label }}" style="width: 64px; height: 64px; border-radius: 32px; padding: 0; background: var(--color-bg); color: {{ lv.ink }}; border-color: {{ lv.ring }}; box-shadow: {{ lv.glow }};"><i class="ph {{ lv.icon }}" style="font-size: 30px;"></i></button>
+          <span style="font-size: 12px; line-height: 1.25; text-align: center; color: {{ lv.ink }}; background: var(--color-bg); padding: 0 2px;">{{ lv.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="position: absolute; right: 32px; top: 28px; display: flex; align-items: center; gap: 12px;">
+      <button type="button" class="btn btn-secondary" ref="{{ stickerBtnRef }}" onClick="{{ openBook }}" aria-label="Stickers" style="min-height: 52px; padding: 0 16px; border-radius: 26px; gap: 8px; font-size: 18px; white-space: nowrap; background: var(--color-bg); font-feature-settings: 'tnum' 1;"><i class="ph ph-sticker" style="font-size: 24px; color: var(--color-accent);"></i>{{ stickerCount }}</button>
+      <button type="button" class="btn btn-secondary" onClick="{{ toggleMusic }}" aria-label="Music" style="width: 52px; height: 52px; border-radius: 26px; padding: 0; background: var(--color-bg); color: {{ musicInk }};"><i class="ph {{ musicIcon }}" style="font-size: 24px;"></i></button>
+      <div class="seg" style="border-radius: 28px; background: var(--color-bg);">
+        <label class="seg-opt" style="padding: 0 16px; min-height: 52px; font-size: 18px; position: relative;"><input type="radio" name="lang" checked="{{ isEn }}" onChange="{{ setEn }}" style="position: absolute; opacity: 0; pointer-events: none;">EN</label>
+        <label class="seg-opt" style="padding: 0 16px; min-height: 52px; font-size: 18px; position: relative;"><input type="radio" name="lang" checked="{{ isRu }}" onChange="{{ setRu }}" style="position: absolute; opacity: 0; pointer-events: none;">RU</label>
+      </div>
+      <button type="button" class="btn btn-primary" onClick="{{ home }}" style="min-height: 52px; padding: 0 18px; border-radius: 26px; gap: 10px; font-size: 18px; white-space: nowrap; background: var(--color-bg);"><i class="ph ph-globe-hemisphere-east" style="font-size: 26px;"></i>{{ backLabel }}</button>
+    </div>
+
+    <div style="position: absolute; right: 32px; bottom: 36px; display: flex; align-items: center; gap: 14px;">
+      <button type="button" class="btn btn-secondary" onClick="{{ prev }}" disabled="{{ noPrev }}" aria-label="Back" style="width: 68px; height: 68px; border-radius: 34px; padding: 0; background: var(--color-bg);"><i class="ph ph-arrow-left" style="font-size: 30px;"></i></button>
+      <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn btn-primary" onClick="{{ next }}" style="min-height: 76px; padding: 0 26px 0 28px; border-radius: 38px; gap: 16px; text-align: left; white-space: nowrap; background: var(--color-bg); box-shadow: 0 0 32px color-mix(in srgb, var(--color-accent) 30%, transparent);">
+          <span style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent-300);">{{ nextTop }}</span>
+            <span style="font-size: 22px; color: var(--color-text);">{{ nextLabel }}</span>
+          </span>
+          <i class="ph {{ nextIcon }}" style="font-size: 32px;"></i>
+        </button>
+      </sc-if>
+      <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn btn-primary" onClick="{{ flyHome }}" style="min-height: 76px; padding: 0 26px 0 28px; border-radius: 38px; gap: 16px; text-align: left; white-space: nowrap; background: var(--color-bg); box-shadow: 0 0 32px color-mix(in srgb, var(--color-accent) 40%, transparent);">
+          <span style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent-300);">{{ flyHomeTop }}</span>
+            <span style="font-size: 22px; color: var(--color-text);">{{ flyHomeLabel }}</span>
+          </span>
+          <i class="ph ph-rocket-launch" style="font-size: 32px;"></i>
+        </button>
+      </sc-if>
+    </div>
+
+    <div ref="{{ flyRef }}" data-sprite-host style="position: absolute; left: 0; top: 0; width: 150px; height: 220px; opacity: 0; pointer-events: none;">
+      <keyed-sprite src="{{ flySrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+    </div>
+    <canvas ref="{{ fxRef }}" style="position: absolute; inset: 0; width: 1180px; height: 820px; pointer-events: none;"></canvas>
+    <div ref="{{ stickerFlyRef }}" style="position: absolute; left: 770px; top: 300px; width: 120px; height: 120px; border-radius: 60px; overflow: hidden; border: 3px solid var(--color-accent); box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 60%, transparent); background: var(--color-neutral-900); opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+      <span style="display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; background-image: {{ stickerFlyBg }};"></span>
+    </div>
+
+    <div ref="{{ bannerRef }}" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; pointer-events: none; opacity: 0;">
+      <span style="font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent-200);">{{ bannerTop }}</span>
+      <span style="font-family: var(--font-heading); font-weight: 500; font-size: 104px; letter-spacing: -0.03em; line-height: 1; text-shadow: 0 0 60px color-mix(in srgb, var(--color-accent) 70%, transparent);">{{ bannerName }}</span>
+    </div>
+
+    <sc-if value="{{ book }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeBook }}" style="position: absolute; inset: 0; background: color-mix(in srgb, var(--color-bg) 82%, transparent); display: flex; align-items: center; justify-content: center;">
+        <div onClick="{{ stop }}" style="width: 980px; box-sizing: border-box; padding: 32px 36px; border-radius: 32px; background: var(--color-surface); border: 1px solid var(--color-neutral-700); box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 24px; position: relative;">
+          <div style="display: flex; align-items: baseline; gap: 16px;">
+            <h2 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 40px;">{{ stickersTitle }}</h2>
+            <span style="font-size: 22px; color: var(--color-accent-300); font-feature-settings: 'tnum' 1;">{{ stickerCount }}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px 12px;">
+            <sc-for list="{{ stickers }}" as="s" hint-placeholder-count="18">
+              <button type="button" onClick="{{ s.go }}" style="display: flex; flex-direction: column; align-items: center; gap: 8px; background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--color-text); font-size: 15px;">
+                <span style="width: 104px; height: 104px; border-radius: 52px; overflow: hidden; border: 3px solid {{ s.ring }}; background: var(--color-neutral-900); display: flex; align-items: center; justify-content: center; opacity: {{ s.op }}; filter: {{ s.filter }};">
+                  <sc-if value="{{ s.hasImg }}"><span style="display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; background-image: {{ s.bg }};"></span></sc-if>
+                  <sc-if value="{{ s.noImg }}"><i class="ph {{ s.icon }}" style="font-size: 48px; color: var(--color-accent-200);"></i></sc-if>
+                </span>
+                <span style="text-align: center; line-height: 1.2;">{{ s.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <span style="font-size: 16px; color: var(--color-neutral-300);">{{ lockedHint }}</span>
+          <button type="button" class="btn btn-secondary" onClick="{{ closeBook }}" aria-label="Close" style="position: absolute; right: 20px; top: 20px; width: 52px; height: 52px; border-radius: 26px; padding: 0;"><i class="ph ph-x" style="font-size: 24px;"></i></button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ welcome }}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; inset: 0; background: var(--color-bg);">
+        <sc-if value="{{ homeVid }}">
+          <div class="lighten" style="position: absolute; inset: 0;">
+            <video ref="{{ videoRef }}" src="{{ homeSrc }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </div>
+          <div style="position: absolute; inset: 0; background: linear-gradient(to right, color-mix(in srgb, var(--color-bg) 90%, transparent), color-mix(in srgb, var(--color-bg) 55%, transparent) 42%, transparent 60%);"></div>
+        </sc-if>
+        <sc-if value="{{ noHomeVid }}">
+          <div style="position: absolute; inset: 0; background: radial-gradient(900px 600px at 30% 50%, color-mix(in srgb, var(--color-accent-900) 60%, transparent), transparent 70%);"></div>
+        </sc-if>
+        <div ref="{{ welcomeTextRef }}" style="position: absolute; left: 96px; width: 580px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 22px;">
+          <h2 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 76px; line-height: 1.08; text-wrap: balance; letter-spacing: -0.03em; text-shadow: 0 0 50px color-mix(in srgb, var(--color-accent) 60%, transparent);">{{ welcomeTitle }}</h2>
+          <p style="margin: 0; font-size: 26px; line-height: 1.4; color: var(--color-neutral-100); text-wrap: pretty;">{{ welcomeSub }}</p>
+          <div style="display: flex; gap: 14px; margin-top: 10px;">
+            <button type="button" class="btn btn-primary" onClick="{{ again }}" style="white-space: nowrap; min-height: 68px; padding: 0 28px; border-radius: 34px; gap: 12px; font-size: 22px; background: var(--color-bg);"><i class="ph ph-rocket-launch" style="font-size: 28px;"></i>{{ againLabel }}</button>
+            <button type="button" class="btn btn-secondary" onClick="{{ openBook }}" style="white-space: nowrap; min-height: 68px; padding: 0 24px; border-radius: 34px; gap: 12px; font-size: 22px; background: var(--color-bg);"><i class="ph ph-sticker" style="font-size: 28px;"></i>{{ stickersTitle }}</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ intro }}" hint-placeholder-val="{{ false }}">
+      <div ref="{{ introRef }}" style="position: absolute; inset: 0; background: var(--color-bg);">
+        <div class="lighten" style="position: absolute; inset: 0;">
+          <sc-if value="{{ introVid }}">
+            <video ref="{{ introVidRef }}" src="{{ introSrc }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+          </sc-if>
+          <sc-if value="{{ introImg }}">
+            <span style="display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; background-image: {{ introBg }};"></span>
+          </sc-if>
+        </div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(to right, color-mix(in srgb, var(--color-bg) 88%, transparent), color-mix(in srgb, var(--color-bg) 50%, transparent) 45%, transparent 62%);"></div>
+        <sc-if value="{{ introImg }}">
+        <div ref="{{ introCosmoRef }}" data-sprite-host style="position: absolute; right: 120px; top: 150px; width: 300px; height: 440px;">
+          <keyed-sprite src="{{ waveSrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+        </div>
+        </sc-if>
+        <div style="position: absolute; left: 96px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 20px;">
+          <span style="font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent);">Cosmo · Космо</span>
+          <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 80px; line-height: 1; letter-spacing: -0.03em; text-wrap: balance;">{{ introTitle }}</h1>
+          <p style="margin: 0; font-size: 26px; line-height: 1.4; color: var(--color-neutral-100); text-wrap: pretty;">{{ introSub }}</p>
+          <div style="display: flex; align-items: center; gap: 14px; margin-top: 12px;">
+            <button type="button" class="btn btn-primary" onClick="{{ letsFly }}" style="white-space: nowrap; flex: none; min-height: 84px; padding: 0 36px; border-radius: 42px; gap: 14px; font-size: 28px; background: var(--color-bg); box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 45%, transparent);"><i class="ph ph-rocket-launch" style="font-size: 34px;"></i>{{ letsFlyLabel }}</button>
+            <div class="seg" style="border-radius: 28px; background: var(--color-bg);">
+              <label class="seg-opt" style="padding: 0 16px; min-height: 52px; font-size: 18px; position: relative;"><input type="radio" name="lang-intro" checked="{{ isEn }}" onChange="{{ setEn }}" style="position: absolute; opacity: 0; pointer-events: none;">EN</label>
+              <label class="seg-opt" style="padding: 0 16px; min-height: 52px; font-size: 18px; position: relative;"><input type="radio" name="lang-intro" checked="{{ isRu }}" onChange="{{ setRu }}" style="position: absolute; opacity: 0; pointer-events: none;">RU</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;childName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Personal&quot;},&quot;startLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;ru&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;'en' | 'ru'&quot;},&quot;music&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sound&quot;},&quot;sound&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sound&quot;},&quot;autoRead&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Sound&quot;},&quot;calmMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;skipIntro&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+const STORE = 'universe-stickers-v1';
+const url = p => (p ? `url("${p}")` : 'none');
+const wait = ms => new Promise(r => setTimeout(r, ms));
+class Component extends DCLogic {
+  state = { i: 0, f: 0, lang: null, showCount: false, bannerTop: '', bannerName: '', ready: !!(window.UNIVERSE && window.UNIVERSE_X),
+    intro: !this.props.skipIntro, have: {}, pose: 'wave',
+    game: false, gameMsg: '', gameWon: false, book: false, welcome: false, music: false, stickerFlySrc: '', stickers: this.loadStickers() };
+  wrapRef = el => { if (this.ro) this.ro.disconnect(); this.wrapEl = el; if (el && window.ResizeObserver) { this.ro = new ResizeObserver(() => this.fit()); this.ro.observe(el); } this.fit(); };
+  stageRef = React.createRef(); contentRef = React.createRef(); starsRef = React.createRef(); fxRef = React.createRef();
+  bannerRef = React.createRef(); wigRef = React.createRef(); bubbleRef = React.createRef(); mascotRef = React.createRef(); numRef = React.createRef();
+  flyRef = React.createRef(); stickerFlyRef = React.createRef(); stickerBtnRef = React.createRef(); introRef = React.createRef(); gameMsgRef = React.createRef();
+  particles = [];
+
+  loadStickers() { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch (e) { return []; } }
+  calm() { return !!this.props.calmMotion; }
+  lang() { return this.state.lang ?? this.props.startLang ?? 'en'; }
+  U() { return window.UNIVERSE; }
+  X() { return window.UNIVERSE_X; }
+  cur() { return this.U().STOPS[this.state.i]; }
+  kid() { return (this.props.childName || '').trim(); }
+
+  componentDidMount() {
+    if (!this.state.ready) this.poll = setInterval(() => { if (window.UNIVERSE && window.UNIVERSE_X) { clearInterval(this.poll); this.setState({ ready: true }); this.probe(); } }, 40);
+    else this.probe();
+    this.onResize = () => this.fit();
+    window.addEventListener('resize', this.onResize);
+    this.fit(); this.startStars(); this.setupFx();
+  }
+  componentDidUpdate() { this.fit(); }
+  componentWillUnmount() {
+    clearInterval(this.poll); clearInterval(this.musicTimer); cancelAnimationFrame(this.fitRaf);
+    [this.starRaf, this.mapRaf, this.countRaf, this.fxRaf].forEach(r => cancelAnimationFrame(r));
+    window.removeEventListener('resize', this.onResize); this.ro && this.ro.disconnect();
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    this.actx && this.actx.close();
+  }
+  async probe() {
+    const U = this.U(), X = this.X(), list = {};
+    U.STOPS.filter(s => !s.map).forEach(s => { list['v:' + s.id] = X.VID_DIR + X.VIDEO[s.id] + '.mp4'; if (s.video) list['v0:' + s.id] = s.video; if (!s.img) list['img:' + s.id] = X.IMG_DIR + X.VIDEO[s.id] + '.png'; });
+    Object.keys(X.POSES).forEach(p => { list['pose:' + p] = X.IMG_DIR + X.POSES[p] + '.png'; list['posev:' + p] = X.VID_DIR + X.POSES[p] + '.mp4'; });
+    list.intro = X.VID_DIR + 'Intro.mp4'; list.home = X.VID_DIR + 'Home.mp4';
+    const have = {};
+    // Does the file exist? Ask the server first (quick). fetch() is refused outright
+    // when the page is opened from disk (file://), and some dev servers reject HEAD,
+    // so in those cases try actually loading it as a <video>/<img> instead.
+    const loads = url => new Promise(res => {
+      const vid = /\.(mp4|webm|mov|m4v)$/i.test(url), el = vid ? document.createElement('video') : new Image();
+      const done = ok => { clearTimeout(timer); el.onerror = el.onload = el.onloadedmetadata = null; if (vid) { el.removeAttribute('src'); el.load(); } res(ok); };
+      const timer = setTimeout(() => done(false), 8000);
+      el.onerror = () => done(false);
+      if (vid) { el.muted = true; el.preload = 'metadata'; el.onloadedmetadata = () => done(true); } else el.onload = () => done(true);
+      el.src = url;
+    });
+    await Promise.all(Object.entries(list).map(async ([k, url]) => {
+      try {
+        const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+        have[k] = r.ok ? true : r.status === 404 ? false : await loads(url);
+      } catch (e) { have[k] = await loads(url); }
+    }));
+    U.STOPS.forEach(s => {
+      if (have['v:' + s.id]) have['vurl:' + s.id] = list['v:' + s.id];
+      else if (have['v0:' + s.id]) have['vurl:' + s.id] = list['v0:' + s.id];
+      if (!s.img && have['img:' + s.id]) s.img = list['img:' + s.id];
+    });
+    this.setState({ have });
+  }
+  fit() {
+    const w = this.wrapEl, s = this.stageRef.current; if (!w || !s) return;
+    if (!w.clientWidth || !w.clientHeight) { cancelAnimationFrame(this.fitRaf); this.fitRaf = requestAnimationFrame(() => this.fit()); return; }
+    this.k = Math.min(w.clientWidth / 1180, w.clientHeight / 820);
+    s.style.scale = String(this.k);
+  }
+  toStage(clientX, clientY) {
+    const r = this.stageRef.current.getBoundingClientRect(), k = r.width / 1180;
+    return { x: (clientX - r.left) / k, y: (clientY - r.top) / k };
+  }
+  cssVar(n, fb) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || fb; }
+
+  // ── audio: synthesized music + effects ──
+  ac() {
+    if (!this.actx) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      this.actx = new AC(); this.master = this.actx.createGain(); this.master.gain.value = 0.9; this.master.connect(this.actx.destination);
+    }
+    if (this.actx.state === 'suspended') this.actx.resume();
+    return this.actx;
+  }
+  tone(f, t0, dur, type, vol, f2, dest) {
+    const c = this.actx, o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t0); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol || 0.2, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(dest || this.master); o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  sfx(name, opt) {
+    if (this.props.sound === false) return;
+    const c = this.ac(); if (!c) return; const t = c.currentTime;
+    if (name === 'pop') this.tone(520, t, 0.14, 'sine', 0.22, 900);
+    if (name === 'chime') [784, 1047, 1319].forEach((f, k) => this.tone(f, t + k * 0.09, 0.9, 'sine', 0.16));
+    if (name === 'boing') this.tone(330, t, 0.38, 'triangle', 0.2, 130);
+    if (name === 'sparkle') [1319, 1568, 1760, 2093, 2637].forEach((f, k) => this.tone(f, t + k * 0.06, 0.45, 'sine', 0.08));
+    if (name === 'whoosh') {
+      const len = opt && opt.long ? 1.3 : 0.85, buf = c.createBuffer(1, c.sampleRate * len, c.sampleRate), d = buf.getChannelData(0);
+      for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
+      const src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain(), fwd = !(opt && opt.back);
+      src.buffer = buf; bp.type = 'bandpass'; bp.Q.value = 1.3;
+      bp.frequency.setValueAtTime(fwd ? 260 : 2600, t); bp.frequency.exponentialRampToValueAtTime(fwd ? 2600 : 260, t + len);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32, t + len * 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+      src.connect(bp); bp.connect(g); g.connect(this.master); src.start(t); src.stop(t + len);
+    }
+  }
+  startMusic() {
+    const c = this.ac(); if (!c || this.mGain) return;
+    this.mGain = c.createGain(); const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1200;
+    this.mGain.connect(lp); lp.connect(this.master);
+    this.mGain.gain.setValueAtTime(0, c.currentTime); this.mGain.gain.linearRampToValueAtTime(1, c.currentTime + 3);
+    const chords = [[261.63, 329.63, 392, 493.88], [220, 261.63, 329.63, 392], [174.61, 220, 261.63, 349.23], [196, 246.94, 293.66, 392]];
+    const bells = [1046.5, 1174.7, 1318.5, 1568, 1760];
+    let k = 0;
+    const play = () => {
+      if (!this.mGain) return;
+      const t = c.currentTime;
+      chords[k % 4].forEach(f => [-5, 5].forEach(det => {
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = det < 0 ? 'sine' : 'triangle'; o.frequency.value = f / 2; o.detune.value = det;
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.028, t + 2.4); g.gain.linearRampToValueAtTime(0.0001, t + 7.8);
+        o.connect(g); g.connect(this.mGain); o.start(t); o.stop(t + 8);
+      }));
+      for (let b = 0; b < 3; b++) if (Math.random() < 0.7) this.tone(bells[Math.floor(Math.random() * bells.length)], t + 0.8 + b * 1.7 + Math.random(), 1.6, 'sine', 0.018, null, this.mGain);
+      k++;
+    };
+    play(); this.musicTimer = setInterval(play, 6000);
+  }
+  stopMusic() {
+    clearInterval(this.musicTimer);
+    if (this.mGain && this.actx) { const g = this.mGain, t = this.actx.currentTime; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 1); setTimeout(() => g.disconnect(), 1200); }
+    this.mGain = null;
+  }
+
+  // ── starfield with warp ──
+  newStar(W, H, mode) {
+    let x, y;
+    if (mode === 'edge') { const a = Math.random() * 6.283, d = 640 + Math.random() * 80; x = W / 2 + Math.cos(a) * d; y = H / 2 + Math.sin(a) * d * 0.75; }
+    else if (mode === 'center') { const a = Math.random() * 6.283, d = 20 + Math.random() * 90; x = W / 2 + Math.cos(a) * d; y = H / 2 + Math.sin(a) * d; }
+    else { x = Math.random() * W; y = Math.random() * H; }
+    return { x, y, z: 0.4 + Math.random() * 1.2, r: Math.random() < 0.08 ? 1.6 : 0.5 + Math.random() * 0.9, a: 0.35 + Math.random() * 0.65, sp: 0.5 + Math.random() * 1.5, ph: Math.random() * 6.283, tint: Math.random() < 0.18 };
+  }
+  // The picture/video uses mix-blend-mode: lighten (so black backgrounds melt
+  // into the page), which also lets any star behind it shine through. Same for
+  // Cosmo if <keyed-sprite> had to fall back to the blend. Punch soft-edged holes in the starfield where they sit. Rects are
+  // read live so the holes follow the bob animation; they ease open during a
+  // warp (k -> 0) while the content is zooming/fading anyway.
+  starHoles(c, W, w) {
+    const k = 1 - Math.min(1, w / 0.25); if (k <= 0) return [];
+    const cr = c.getBoundingClientRect(), sc = cr.width / W; if (!sc) return [];
+    const out = [];
+    for (const [el, r] of [[this.bobEl, 32], [this.mascotBobEl, 24]]) {
+      if (!el || !el.isConnected || !el.classList.contains('lighten')) continue;
+      const b = el.getBoundingClientRect(); if (!b.width || !b.height) continue;
+      out.push({ cx: (b.left + b.width / 2 - cr.left) / sc, cy: (b.top + b.height / 2 - cr.top) / sc, hw: b.width / sc / 2, hh: b.height / sc / 2, r, k });
+    }
+    return out;
+  }
+  startStars() {
+    const c = this.starsRef.current; if (!c) return;
+    const W = 1180, H = 820, dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = W * dpr; c.height = H * dpr;
+    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const ink = this.cssVar('--color-text', '#e9e9ed'), tint = this.cssVar('--color-accent-300', '#b9b0ea');
+    const stars = Array.from({ length: 280 }, () => this.newStar(W, H));
+    this.warp = 0; this.warpDir = -1;
+    const tick = t => {
+      ctx.clearRect(0, 0, W, H);
+      const w = this.warp, holes = this.starHoles(c, W, w);
+      for (const s of stars) {
+        const px = s.x, py = s.y;
+        if (w > 0.01) { const f = 1 + this.warpDir * 0.07 * w * s.z; s.x = (s.x - W / 2) * f + W / 2; s.y = (s.y - H / 2) * f + H / 2; }
+        else { s.x += 0.02 * s.z; if (s.x > W + 4) s.x = -4; }
+        const dc = Math.hypot(s.x - W / 2, s.y - H / 2);
+        if (s.x < -60 || s.x > W + 60 || s.y < -60 || s.y > H + 60 || (this.warpDir < 0 && w > 0.01 && dc < 6)) { Object.assign(s, this.newStar(W, H, w > 0.01 ? (this.warpDir < 0 ? 'edge' : 'center') : 'any')); continue; }
+        const tw = 0.55 + 0.45 * Math.sin(t * 0.002 * s.sp + s.ph);
+        let vis = 1;
+        for (const h of holes) {
+          // signed distance to the rounded rect: <= 0 inside, fades back in over 26px outside
+          const qx = Math.abs(s.x - h.cx) - (h.hw - h.r), qy = Math.abs(s.y - h.cy) - (h.hh - h.r);
+          const d = Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - h.r;
+          vis = Math.min(vis, 1 - h.k * (1 - Math.max(0, Math.min(1, (d - 3) / 26))));
+        }
+        if (vis <= 0.004) continue;
+        ctx.globalAlpha = Math.min(1, s.a * tw + w * 0.4) * vis;
+        ctx.fillStyle = ctx.strokeStyle = s.tint ? tint : ink;
+        if (w > 0.06) { ctx.lineWidth = s.r * 1.3; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(s.x, s.y); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
+      }
+      ctx.globalAlpha = 1; this.warp *= 0.955;
+      this.starRaf = requestAnimationFrame(tick);
+    };
+    this.starRaf = requestAnimationFrame(tick);
+  }
+
+  // ── particles: confetti, sparkles, rocket trail ──
+  setupFx() {
+    const c = this.fxRef.current; if (!c) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = 1180 * dpr; c.height = 820 * dpr;
+    this.fx = c.getContext('2d'); this.fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.palette = [this.cssVar('--color-accent', '#9184d9'), this.cssVar('--color-accent-200', '#d2ccf3'), '#ffc35a', '#4f8fe0', '#e0453a', '#5aa85a', '#f2c94c'];
+  }
+  runFx() {
+    if (this.fxRaf || !this.fx) return;
+    const ctx = this.fx;
+    const frame = now => {
+      ctx.clearRect(0, 0, 1180, 820);
+      const tr = this.trail;
+      if (tr) {
+        const p = (now - tr.t0) / tr.dur;
+        if (p >= 1) this.trail = null;
+        else if (p > 0.08 && p < 0.92) {
+          const pts = tr.pts, seg = Math.min(pts.length - 2, Math.floor(p * (pts.length - 1))), lt = p * (pts.length - 1) - seg;
+          const x = pts[seg][0] + (pts[seg + 1][0] - pts[seg][0]) * lt, y = pts[seg][1] + (pts[seg + 1][1] - pts[seg][1]) * lt;
+          for (let k = 0; k < 3; k++) this.particles.push({ x: x + (Math.random() - 0.5) * 16, y: y + (Math.random() - 0.5) * 16, vx: (Math.random() - 0.5) * 1.2, vy: (Math.random() - 0.5) * 1.2, g: 0, life: 1, decay: 0.025 + Math.random() * 0.02, r: 1.5 + Math.random() * 3, col: k ? '#ffc35a' : this.palette[1], star: true });
+        }
+      }
+      this.particles = this.particles.filter(q => q.life > 0);
+      for (const q of this.particles) {
+        q.x += q.vx; q.y += q.vy; q.vy += q.g; q.vx *= 0.985; q.life -= q.decay; q.rot = (q.rot || 0) + (q.spin || 0);
+        ctx.globalAlpha = Math.max(0, Math.min(1, q.life * 1.4));
+        ctx.fillStyle = q.col;
+        if (q.star) { ctx.beginPath(); ctx.arc(q.x, q.y, q.r * q.life + 0.3, 0, 6.283); ctx.fill(); }
+        else { ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.rot); ctx.fillRect(-q.r, -q.r * 0.45, q.r * 2, q.r * 0.9); ctx.restore(); }
+      }
+      ctx.globalAlpha = 1;
+      if (this.particles.length || this.trail) this.fxRaf = requestAnimationFrame(frame);
+      else { ctx.clearRect(0, 0, 1180, 820); this.fxRaf = null; }
+    };
+    this.fxRaf = requestAnimationFrame(frame);
+  }
+  burst(x, y, n) {
+    if (this.calm()) n = Math.round((n || 90) / 3);
+    for (let k = 0; k < (n || 90); k++) {
+      const a = Math.random() * 6.283, sp = 3 + Math.random() * 8;
+      this.particles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 3, g: 0.22, life: 1, decay: 0.008 + Math.random() * 0.01, r: 4 + Math.random() * 5, col: this.palette[k % this.palette.length], spin: (Math.random() - 0.5) * 0.4, star: Math.random() < 0.25 });
+    }
+    this.runFx();
+  }
+  flyCosmo(fwd, long) {
+    const el = this.flyRef.current; if (!el || this.calm()) return;
+    const rot = (this.state.have['pose:fly'] || this.state.have['posev:fly']) ? 0 : 45;
+    let pts = [[-160, 660], [260, 470], [700, 250], [1300, -200]];
+    if (!fwd) pts = pts.slice().reverse();
+    const r = fwd ? rot : rot + 180, dur = long ? 1500 : 1150;
+    el.animate(pts.map((p, k) => ({ transform: `translate(${p[0] - 75}px, ${p[1] - 110}px) rotate(${r}deg) scale(${k === 0 || k === 3 ? 0.6 : 1})`, opacity: k === 0 || k === 3 ? 0 : 1 })), { duration: dur, easing: 'cubic-bezier(.45,.05,.55,.95)' });
+    this.trail = { t0: performance.now(), dur, pts }; this.runFx();
+    const m = this.mascotRef.current;
+    if (m) m.animate([{ opacity: 1 }, { opacity: 0, offset: 0.15 }, { opacity: 0, offset: 0.8 }, { opacity: 1 }], { duration: dur + 200 });
+  }
+
+  // ── navigation ──
+  go(n, opt) {
+    opt = opt || {};
+    const U = this.U(); if (!U) return Promise.resolve();
+    n = Math.max(0, Math.min(U.STOPS.length - 1, n));
+    if (n === this.state.i || this.busy) return Promise.resolve();
+    const fwd = n > this.state.i, from = U.STOPS[this.state.i], to = U.STOPS[n];
+    const crossing = from.lv !== to.lv, calm = this.calm(), lang = this.lang();
+    this.busy = true;
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    cancelAnimationFrame(this.countRaf);
+    this.sfx('whoosh', { back: !fwd, long: crossing });
+    this.flyCosmo(fwd, crossing);
+    if (!calm) { this.warp = crossing ? 1 : 0.5; this.warpDir = fwd ? -1 : 1; }
+    const el = this.contentRef.current, q = opt.quick ? 0.7 : 1;
+    const out = !calm && el ? el.animate(
+      [{ transform: 'scale(1)', opacity: 1, filter: 'blur(0px)' }, { transform: fwd ? 'scale(0.3)' : 'scale(1.9)', opacity: 0, filter: 'blur(8px)' }],
+      { duration: (crossing ? 520 : 380) * q, easing: 'cubic-bezier(.55,0,.8,.2)', fill: 'forwards' }) : null;
+    const lvl = U.LEVELS.find(l => l.id === to.lv), X = this.X();
+    return new Promise(resolve => {
+      const done = () => {
+        this.setState({ i: n, f: 0, showCount: false, game: false, gameMsg: '', gameWon: false, pose: 'wave',
+          bannerTop: opt.top != null ? opt.top : (fwd ? U.UI[lang].zoomTo : ''), bannerName: lvl[lang] }, () => {
+          if (out) out.cancel();
+          if (!calm && el) el.animate(
+            [{ transform: fwd ? 'scale(2.3)' : 'scale(0.35)', opacity: 0, filter: 'blur(10px)' }, { transform: 'scale(1)', opacity: 1, filter: 'blur(0px)' }],
+            { duration: (crossing ? 900 : 600) * q, delay: crossing ? 250 * q : 0, easing: 'cubic-bezier(.2,.9,.25,1.12)', fill: 'backwards' });
+          if (crossing && this.bannerRef.current) this.bannerRef.current.animate(
+            [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1)', offset: 0.22 }, { opacity: 1, transform: 'scale(1.04)', offset: 0.7 }, { opacity: 0, transform: 'scale(1.25)' }],
+            { duration: (calm ? 1200 : 1500) * q, easing: 'ease-out' });
+          this.busy = false;
+          if (this.props.autoRead && !opt.quick) setTimeout(() => this.speakCurrent(), crossing ? 900 : 300);
+          resolve();
+        });
+      };
+      out ? out.finished.then(done, done) : done();
+    });
+  }
+  async flyHome() {
+    if (this.busy || this.homing) return;
+    const U = this.U(), t = this.X().UI[this.lang()];
+    const targets = ['milkyway', 'solarmap', 'earth', 'moscow'].map(id => U.STOPS.findIndex(s => s.id === id)).filter(n => n < this.state.i);
+    this.homing = true;
+    for (const n of targets) { await this.go(n, { quick: true, top: t.flyingHome }); await wait(this.calm() ? 300 : 650); }
+    this.homing = false;
+    const delay = this.state.have.home ? 2700 : 0;
+    this.setState({ welcome: true, pose: 'cheer' });
+    if (delay) setTimeout(() => this.sfx('whoosh', { back: true, long: true }), 200);
+    setTimeout(() => {
+      this.sfx('chime'); setTimeout(() => this.sfx('sparkle'), 300);
+      [[300, 420], [900, 380], [600, 260]].forEach((p, k) => setTimeout(() => this.burst(p[0], p[1], 110), k * 380));
+      if (this.props.autoRead !== false) this.speakText(t.welcome(this.kid()));
+    }, delay);
+  }
+
+  items() {
+    const st = this.cur(), lang = this.lang(), t = this.U().UI[lang];
+    const facts = lang === 'en' ? st.fe : st.fr;
+    return [...facts.map((text, k) => ({ text, kicker: (lang === 'en' ? 'Fun fact ' : 'Факт ') + (k + 1), icon: 'ph-star' })),
+      { text: lang === 'en' ? st.se : st.sr, kicker: t.size[st.kind], icon: { compare: 'ph-ruler', count: 'ph-circles-three-plus', home: 'ph-map-pin' }[st.kind], size: true }];
+  }
+  setItem(f) {
+    if (f === this.state.f) return;
+    const last = f === this.items().length - 1;
+    this.setState({ f, showCount: false, pose: last ? 'point' : 'wave' }, () => {
+      if (!this.calm() && this.bubbleRef.current) this.bubbleRef.current.animate(
+        [{ transform: 'scale(.9) translateY(6px)', opacity: 0.2 }, { transform: 'scale(1)', opacity: 1 }], { duration: 360, easing: 'cubic-bezier(.2,.9,.3,1.3)' });
+      this.hop(); this.sfx('pop');
+      if (this.props.autoRead) this.speakCurrent();
+    });
+  }
+  hop() {
+    const m = this.mascotRef.current; if (!m || this.calm()) return;
+    m.animate([{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-22px) rotate(-8deg)', offset: 0.4 }, { transform: 'translateY(0) rotate(4deg)', offset: 0.75 }, { transform: 'translateY(0) rotate(0)' }], { duration: 520, easing: 'ease-out' });
+  }
+  speakText(text) {
+    const ss = window.speechSynthesis; if (!ss) return;
+    ss.cancel();
+    const lang = this.lang(), u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'ru' ? 'ru-RU' : 'en-US'; u.rate = 0.9; u.pitch = 1.1;
+    const v = ss.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith(lang)); if (v) u.voice = v;
+    ss.speak(u);
+  }
+  speakCurrent() {
+    const it = this.items()[this.state.f], st = this.cur();
+    this.speakText((this.state.f === 0 ? st[this.lang()] + '. ' : '') + it.text);
+  }
+
+  // ── Find it! game + stickers ──
+  openGame() {
+    const g = this.X().GAMES[this.cur().id]; if (!g) return;
+    this.sfx('pop');
+    this.setState({ game: true, gameMsg: '', gameWon: false, showCount: false, pose: 'point' });
+    if (this.props.autoRead) this.speakText(g.q[this.lang() === 'en' ? 0 : 1]);
+  }
+  choose(k, e) {
+    if (this.state.gameWon) return;
+    const g = this.X().GAMES[this.cur().id], t = this.X().UI[this.lang()], btn = e.currentTarget;
+    if (k !== g.a) {
+      this.sfx('boing');
+      if (!this.calm()) btn.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-12px)' }, { transform: 'translateX(12px)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(0)' }], { duration: 420 });
+      this.setState({ gameMsg: t.tryAgain });
+      return;
+    }
+    const r = btn.getBoundingClientRect(), p = this.toStage(r.left + r.width / 2, r.top + r.height / 2);
+    this.sfx('chime'); this.burst(p.x, p.y, 100);
+    if (!this.calm()) btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 500, easing: 'cubic-bezier(.2,.9,.3,1.4)' });
+    this.setState({ gameWon: true, gameMsg: t.yay, pose: 'cheer' });
+    this.speakText(t.yay);
+    this.giveSticker(this.cur());
+    setTimeout(() => this.setState(s => (s.pose === 'cheer' && !s.welcome ? { pose: 'wave' } : null)), 2600);
+  }
+  giveSticker(st) {
+    if (this.state.stickers.includes(st.id)) return;
+    const stickers = this.state.stickers.concat(st.id);
+    try { localStorage.setItem(STORE, JSON.stringify(stickers)); } catch (e) {}
+    const img = st.img || (this.U().STOPS.find(s => s.img) || {}).img || '';
+    this.setState({ stickerFlySrc: img }, () => {
+      setTimeout(() => {
+        const el = this.stickerFlyRef.current, b = this.stickerBtnRef.current;
+        this.setState({ stickers });
+        if (!el || !b) return;
+        this.sfx('sparkle');
+        const br = b.getBoundingClientRect(), bp = this.toStage(br.left + br.width / 2, br.top + br.height / 2);
+        const dx = bp.x - 830, dy = bp.y - 360;
+        el.animate([
+          { transform: 'scale(0) rotate(-20deg)', opacity: 0 },
+          { transform: 'scale(1.4) rotate(8deg)', opacity: 1, offset: 0.3 },
+          { transform: 'scale(1.3) rotate(0deg)', opacity: 1, offset: 0.55 },
+          { transform: `translate(${dx}px, ${dy}px) scale(0.25)`, opacity: 0.9 }], { duration: this.calm() ? 900 : 1500, easing: 'cubic-bezier(.4,0,.2,1)' });
+        setTimeout(() => { if (b && !this.calm()) b.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 400 }); this.burst(bp.x, bp.y, 30); }, this.calm() ? 900 : 1500);
+      }, 700);
+    });
+  }
+
+  // ── intro ──
+  welcomeTextRef = el => {
+    if (!el) return;
+    const delay = this.state.have.home ? 2600 : 0;
+    el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 700, delay, easing: 'cubic-bezier(.2,.9,.3,1.1)', fill: 'backwards' });
+  };
+  introVidRef = el => {
+    this.introVid = el;
+    if (!el) return;
+    el.muted = true; el.playsInline = true;
+    el.addEventListener('timeupdate', () => { if (!this.launching && el.currentTime > 6.3) el.currentTime = 0.1; });
+    el.addEventListener('ended', () => { if (!this.launching) { el.currentTime = 0.1; el.play().catch(() => {}); } });
+    const p = el.play(); p && p.catch(() => {});
+  };
+  letsFly() {
+    const vid = this.introVid;
+    if (vid && this.state.have.intro && !this.launching) {
+      this.launching = true; this.ac();
+      if (this.props.music !== false) { this.startMusic(); this.setState({ music: true }); }
+      vid.currentTime = 6.4; vid.play().catch(() => {});
+      setTimeout(() => this.sfx('whoosh', { long: true }), 700);
+      const o = this.introRef.current;
+      const end = () => { this.launching = false; this.setState({ intro: false }); this.hop(); if (this.props.autoRead) setTimeout(() => this.speakCurrent(), 400); };
+      setTimeout(() => {
+        if (!this.calm()) { this.warp = 1; this.warpDir = -1; }
+        if (o && !this.calm()) o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, fill: 'forwards' }).finished.then(end, end); else end();
+      }, 2300);
+      return;
+    }
+    this.ac();
+    if (this.props.music !== false) { this.startMusic(); this.setState({ music: true }); }
+    this.sfx('whoosh', { long: true });
+    const c = this.introCosmoEl, o = this.introRef.current;
+    if (c && !this.calm()) c.animate([{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(20px) rotate(0)', offset: 0.15 }, { transform: 'translateY(-1100px) rotate(8deg)' }], { duration: 1100, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
+    if (!this.calm()) this.warp = 1, this.warpDir = -1;
+    const end = () => { this.setState({ intro: false }); this.hop(); if (this.props.autoRead) setTimeout(() => this.speakCurrent(), 400); };
+    if (o && !this.calm()) o.animate([{ opacity: 1 }, { opacity: 1, offset: 0.5 }, { opacity: 0 }], { duration: 1300, fill: 'forwards' }).finished.then(end, end);
+    else end();
+  }
+  introCosmoRef = el => {
+    this.introCosmoEl = el;
+    if (!el || this.calm()) return;
+    el.animate([{ transform: 'translate(260px, -700px) rotate(25deg)', opacity: 0 }, { transform: 'translate(0, 0) rotate(-4deg)', opacity: 1, offset: 0.8 }, { transform: 'translate(0, 0) rotate(0)', opacity: 1 }], { duration: 1600, easing: 'cubic-bezier(.2,.8,.3,1)' })
+      .finished.then(() => { if (this.introCosmoEl === el) el.animate([{ transform: 'translateY(-10px) rotate(-2deg)' }, { transform: 'translateY(10px) rotate(2deg)' }], { duration: 2400, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }); }, () => {});
+  };
+
+  // ── callback refs ──
+  bobRef = el => { this.bobEl = el; if (el && !this.calm()) el.animate([{ transform: 'translateY(-9px)' }, { transform: 'translateY(9px)' }], { duration: 3400, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }); };
+  mascotBobRef = el => { this.mascotBobEl = el; if (el && !this.calm()) el.animate([{ transform: 'translateY(-5px) rotate(-3deg)' }, { transform: 'translateY(5px) rotate(3deg)' }], { duration: 2200, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }); };
+  videoRef = el => { if (!el) return; el.muted = true; el.playsInline = true; const p = el.play(); p && p.catch(() => {}); };
+  mapRef = el => { cancelAnimationFrame(this.mapRaf); if (el) this.runMap(el); };
+  countRef = el => { cancelAnimationFrame(this.countRaf); if (el) this.runCount(el); };
+
+  sphere(ctx, x, y, r, col, lx, ly) {
+    if (r < 2.4) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill(); return; }
+    const g = ctx.createRadialGradient(x + lx * r * 0.45, y + ly * r * 0.45, r * 0.08, x, y, r * 1.05);
+    g.addColorStop(0, 'rgba(255,255,255,0.85)'); g.addColorStop(0.3, col); g.addColorStop(1, 'rgba(8,10,20,1)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.283); ctx.fill();
+  }
+  runMap(c) {
+    const U = this.U(), W = 760, H = 620, cx = 380, cy = 300, K = 0.42, dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = W * dpr; c.height = H * dpr;
+    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const accent = this.cssVar('--color-accent', '#9184d9'), font = getComputedStyle(document.body).fontFamily;
+    const belt = Array.from({ length: 260 }, () => ({ t: Math.random() * 6.283, d: (Math.random() - 0.5) * 18, s: 0.6 + Math.random() * 1.4 }));
+    const ang = {}; U.PLANETS.forEach((p, k) => { ang[p.id] = k * 1.9 + 0.6; });
+    let last = performance.now();
+    const frame = now => {
+      const dt = Math.min(50, now - last) / 1000; last = now;
+      const lang = this.lang(), name = id => (U.STOPS.find(s => s.id === id) || {})[lang] || '';
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(233,233,237,0.14)';
+      U.PLANETS.forEach(p => { if (!p.belt) { ctx.beginPath(); ctx.ellipse(cx, cy, p.a, p.a * K, 0, 0, 6.283); ctx.stroke(); } });
+      ctx.fillStyle = 'rgba(205,190,165,0.6)';
+      belt.forEach(b => { b.t += dt * 0.1; ctx.fillRect(cx + (188 + b.d) * Math.cos(b.t), cy + (188 + b.d) * K * Math.sin(b.t), b.s, b.s); });
+      const list = U.PLANETS.filter(p => !p.belt).map(p => {
+        ang[p.id] += dt * 0.8 / Math.sqrt(p.p);
+        const s = Math.sin(ang[p.id]);
+        return Object.assign({}, p, { x: cx + p.a * Math.cos(ang[p.id]), y: cy + p.a * K * s, front: s >= 0 });
+      });
+      const drawP = p => {
+        const dx = cx - p.x, dy = cy - p.y, L = Math.hypot(dx, dy) || 1;
+        if (p.ring) { ctx.strokeStyle = 'rgba(240,222,170,0.85)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 2.1, p.r * 0.6, -0.28, Math.PI, 2 * Math.PI); ctx.stroke(); }
+        this.sphere(ctx, p.x, p.y, p.r, p.c, dx / L, dy / L);
+        if (p.ring) { ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r * 2.1, p.r * 0.6, -0.28, 0, Math.PI); ctx.stroke(); }
+        if (p.id === 'earth') {
+          ctx.strokeStyle = accent; ctx.lineWidth = 2; ctx.globalAlpha = 0.6 + 0.4 * Math.sin(now / 260);
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 7 + 2.5 * Math.sin(now / 260), 0, 6.283); ctx.stroke(); ctx.globalAlpha = 1;
+          ctx.fillStyle = accent; ctx.font = `500 14px ${font}`; ctx.textAlign = 'center';
+          ctx.fillText(U.UI[lang].you, p.x, p.y - p.r - 14);
+        }
+        ctx.fillStyle = 'rgba(233,233,237,0.9)'; ctx.font = `500 14px ${font}`; ctx.textAlign = 'center';
+        if (p.a >= 92) ctx.fillText(name(p.id), p.x, p.y + p.r + 20);
+      };
+      list.filter(p => !p.front).forEach(drawP);
+      const pulse = 1 + 0.04 * Math.sin(now / 500);
+      let g = ctx.createRadialGradient(cx, cy, 10, cx, cy, 110 * pulse);
+      g.addColorStop(0, 'rgba(255,190,90,0.6)'); g.addColorStop(1, 'rgba(255,150,60,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 110 * pulse, 0, 6.283); ctx.fill();
+      g = ctx.createRadialGradient(cx - 8, cy - 8, 2, cx, cy, 32);
+      g.addColorStop(0, '#fff6d0'); g.addColorStop(0.45, '#ffc35a'); g.addColorStop(1, '#ff7a1a');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 32, 0, 6.283); ctx.fill();
+      list.filter(p => p.front).forEach(drawP);
+      this.mapHits = list.map(p => ({ id: p.id, x: p.x, y: p.y, r: Math.max(p.r, 8) + 16 })).concat([{ id: 'sun', x: cx, y: cy, r: 46 }]);
+      this.mapGeo = { cx, cy, K };
+      this.mapRaf = requestAnimationFrame(frame);
+    };
+    this.mapRaf = requestAnimationFrame(frame);
+  }
+  mapTap = e => {
+    const c = e.currentTarget, rect = c.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * 760 / rect.width, y = (e.clientY - rect.top) * 620 / rect.height;
+    let hit = null, best = 1e9;
+    (this.mapHits || []).forEach(h => { const d = Math.hypot(h.x - x, h.y - y); if (d < h.r && d < best) { best = d; hit = h.id; } });
+    if (!hit && this.mapGeo) { const { cx, cy, K } = this.mapGeo; const d = Math.hypot((x - cx) / 188, (y - cy) / (188 * K)); if (Math.abs(d - 1) < 0.09) hit = 'asteroids'; }
+    if (hit) { e.stopPropagation(); this.go(this.U().STOPS.findIndex(s => s.id === hit)); }
+  };
+  runCount(c) {
+    const U = this.U(), st = this.cur(), { n, big, small } = st.count, shown = Math.min(n, 400);
+    const S = 340, R = 155, cx = S / 2, cy = S / 2, dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = S * dpr; c.height = S * dpr;
+    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let r = R * Math.sqrt(0.82 / shown), pts = [];
+    for (let k = 0; k < 12; k++) {
+      pts = []; const d = 2 * r, rowH = d * 0.866;
+      for (let y = -R, row = 0; y <= R; y += rowH, row++) for (let x = -R + (row % 2 ? r : 0); x <= R; x += d) if (x * x + y * y <= (R - r) * (R - r)) pts.push([x, y]);
+      if (pts.length >= shown) break; r *= 0.94;
+    }
+    pts.sort((a, b) => b[1] - a[1] || a[0] - b[0]); pts = pts.slice(0, shown);
+    const bigC = U.BODY[big], smallC = U.BODY[small], loc = this.lang() === 'ru' ? 'ru-RU' : 'en-US';
+    const T = shown < 80 ? 2000 : 3400, t0 = performance.now();
+    let lastK = 0;
+    const frame = now => {
+      const p = Math.min(1, (now - t0) / T), e = 1 - Math.pow(1 - p, 2.2), k = Math.ceil(e * shown);
+      if (k - lastK >= Math.max(1, Math.floor(shown / 25))) { this.sfx('pop'); lastK = k; }
+      ctx.clearRect(0, 0, S, S);
+      const g = ctx.createRadialGradient(cx - R * 0.35, cy - R * 0.35, R * 0.1, cx, cy, R);
+      g.addColorStop(0, bigC); g.addColorStop(1, 'rgba(8,10,20,1)');
+      ctx.globalAlpha = 0.45; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 1; ctx.strokeStyle = bigC; ctx.lineWidth = 2; ctx.stroke();
+      for (let j = 0; j < k; j++) { const s = Math.min(1, (k - j) / 5 + 0.35); this.sphere(ctx, cx + pts[j][0], cy + pts[j][1], r * 0.92 * s, smallC, -0.6, -0.6); }
+      if (this.numRef.current) this.numRef.current.textContent = Math.round(n * e).toLocaleString(loc);
+      if (p < 1) this.countRaf = requestAnimationFrame(frame);
+      else { this.sfx('chime'); this.setState({ pose: 'cheer' }); setTimeout(() => this.setState(s => (s.pose === 'cheer' ? { pose: 'point' } : null)), 2000); }
+    };
+    this.countRaf = requestAnimationFrame(frame);
+  }
+
+  pDown = e => { this.sw = { x: e.clientX, y: e.clientY }; };
+  pUp = e => {
+    const s = this.sw; this.sw = null; if (!s) return;
+    if (this.state.intro || this.state.book || this.state.welcome || this.state.game || this.homing) return;
+    const dx = e.clientX - s.x, dy = e.clientY - s.y;
+    if (Math.abs(dx) > 80 && Math.abs(dy) < 90) this.go(this.state.i + (dx < 0 ? 1 : -1));
+  };
+  poseSrc(p) {
+    const X = this.X(), U = this.U();
+    return this.state.have['pose:' + p] ? X.IMG_DIR + X.POSES[p] + '.png' : U.MASCOT.img;
+  }
+  poseVid(p) { const X = this.X(); return this.state.have['posev:' + p] ? X.VID_DIR + X.POSES[p] + '.mp4' : ''; }
+
+  renderVals() {
+    const U = this.U(), X = this.X();
+    if (!U || !X) return { ready: false };
+    const lang = this.lang(), t = U.UI[lang], tx = X.UI[lang], i = this.state.i, st = U.STOPS[i], f = this.state.f;
+    const lvl = U.LEVELS.find(l => l.id === st.lv), lvIdx = U.LEVELS.indexOf(lvl);
+    const items = this.items(), it = items[f];
+    const nxt = U.STOPS[i + 1], crossing = nxt && nxt.lv !== st.lv;
+    const g = X.GAMES[st.id], won = this.state.gameWon, L = lang === 'en' ? 0 : 1;
+    const imgOf = id => (U.STOPS.find(s => s.id === id) || {}).img;
+    const kid = this.kid(), stk = this.state.stickers;
+    return {
+      ready: true,
+      wrapRef: this.wrapRef, stageRef: this.stageRef, contentRef: this.contentRef, starsRef: this.starsRef, bannerRef: this.bannerRef, fxRef: this.fxRef,
+      bobRef: this.bobRef, wigRef: this.wigRef, bubbleRef: this.bubbleRef, mascotRef: this.mascotRef, mascotBobRef: this.mascotBobRef,
+      mapRef: this.mapRef, countRef: this.countRef, numRef: this.numRef, mapTap: this.mapTap, videoRef: this.videoRef, pDown: this.pDown, pUp: this.pUp,
+      flyRef: this.flyRef, stickerFlyRef: this.stickerFlyRef, stickerBtnRef: this.stickerBtnRef, introRef: this.introRef, introCosmoRef: this.introCosmoRef, introVidRef: this.introVidRef, gameMsgRef: this.gameMsgRef,
+      isMap: !!st.map, isPic: !st.map && !this.state.showCount && !this.state.game, showCount: this.state.showCount,
+      stops: U.STOPS.filter(s => !s.map).map(s => {
+        const vurl = this.state.have['vurl:' + s.id], hasVid = !!vurl, active = s.id === st.id;
+        return { id: s.id, src: s.img, video: vurl || '', showVideo: active && hasVid, showSlot: active && !hasVid, ph: `${t.drop} · ${s[lang]}` };
+      }),
+      // Cosmo is drawn by <keyed-sprite>: pose clip if there is one, else the still
+      mascotSrc: this.poseVid(this.state.pose) || this.poseSrc(this.state.pose),
+      cosmoCut: X.IMG_DIR + 'Cosmo-cutout.png', // pre-cut still with real transparency, used when the page is opened from disk
+      flySrc: this.poseVid('fly') || this.poseSrc('fly'), waveSrc: this.poseVid('wave') || this.poseSrc('wave'),
+      kicker: `${lvl[lang]} · ${t.stop(i + 1, U.STOPS.length)}`,
+      title: st[lang], mapHint: t.mapHint,
+      itemText: it.text, itemKicker: it.kicker, itemIcon: it.icon,
+      dots: items.map((x, k) => ({ go: () => this.setItem(k), label: x.kicker, w: k === f ? 40 : 22, fill: k === f ? 'var(--color-accent)' : k < f ? 'var(--color-accent-700)' : 'var(--color-neutral-700)' })),
+      lastItem: f >= items.length - 1,
+      nextItem: () => this.setItem(Math.min(items.length - 1, f + 1)),
+      showMeVis: !!(it.size && st.count && !this.state.showCount), showMeLabel: t.showMe,
+      showMe: () => this.setState({ showCount: true, game: false, pose: 'point' }),
+      closeCount: () => { cancelAnimationFrame(this.countRaf); this.setState({ showCount: false }); },
+      countUnit: st.count ? st.count[lang] : '',
+      speak: () => this.speakCurrent(),
+      mascotTap: () => { this.hop(); this.sfx('pop'); this.speakCurrent(); },
+      wiggle: () => { const w = this.wigRef.current; this.sfx('boing'); if (w && !this.calm()) w.animate([{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(-3deg) scale(1.04)', offset: 0.25 }, { transform: 'rotate(3deg) scale(1.05)', offset: 0.55 }, { transform: 'rotate(-1deg) scale(1.01)', offset: 0.8 }, { transform: 'rotate(0) scale(1)' }], { duration: 650, easing: 'ease-out' }); },
+      gameLabel: tx.game, showGameBtn: !!g && !this.state.game && !this.state.showCount,
+      openGame: () => this.openGame(), closeGame: () => this.setState({ game: false, pose: 'wave' }),
+      game: this.state.game, gameQ: g ? g.q[L] : '', gameMsg: this.state.gameMsg,
+      choices: g ? g.c.map((c, k) => {
+        const img = c.img ? imgOf(c.img) : null, right = won && k === g.a;
+        return { label: c[lang], pick: e => this.choose(k, e), hasImg: !!img, bg: url(img), hasColor: !img && !!c.color, color: c.color || 'transparent', hasIcon: !img && !c.color, icon: c.icon || 'ph-star',
+          ring: right ? 'var(--color-accent)' : 'var(--color-neutral-700)', glow: right ? '0 0 36px color-mix(in srgb, var(--color-accent) 60%, transparent)' : 'none' };
+      }) : [],
+      stickerCount: `${stk.length}/${U.STOPS.length}`, stickersTitle: tx.stickers, lockedHint: tx.locked,
+      openBook: () => { this.sfx('pop'); this.setState({ book: true }); }, closeBook: () => this.setState({ book: false }), stop: e => e.stopPropagation(),
+      book: this.state.book,
+      stickers: U.STOPS.map((s, k) => {
+        const got = stk.includes(s.id);
+        return { label: s[lang], bg: url(s.img), hasImg: !!s.img, noImg: !s.img, icon: s.map ? 'ph-planet' : 'ph-spiral', ring: got ? 'var(--color-accent)' : 'var(--color-neutral-700)', op: got ? 1 : 0.3, filter: got ? 'none' : 'grayscale(1)',
+          go: () => { this.setState({ book: false, welcome: false }); this.go(k); } };
+      }),
+      musicIcon: this.state.music ? 'ph-music-notes' : 'ph-speaker-slash', musicInk: this.state.music ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+      toggleMusic: () => { if (this.state.music) { this.stopMusic(); this.setState({ music: false }); } else { this.startMusic(); this.setState({ music: true }); } },
+      ladder: U.LEVELS.slice().reverse().map(l => {
+        const k = U.LEVELS.indexOf(l), on = k === lvIdx, reached = k < lvIdx;
+        return { label: l[lang], icon: l.icon, go: () => this.go(U.STOPS.findIndex(s => s.lv === l.id)),
+          ink: on ? 'var(--color-accent)' : reached ? 'var(--color-accent-300)' : 'var(--color-neutral-300)',
+          ring: on ? 'var(--color-accent)' : reached ? 'var(--color-accent-700)' : 'var(--color-neutral-700)',
+          glow: on ? '0 0 24px color-mix(in srgb, var(--color-accent) 45%, transparent)' : 'none' };
+      }),
+      isEn: lang === 'en', isRu: lang === 'ru',
+      setEn: () => this.setState({ lang: 'en' }), setRu: () => this.setState({ lang: 'ru' }),
+      backLabel: t.back, home: () => this.go(0),
+      prev: () => this.go(i - 1), noPrev: i === 0,
+      hasNext: !!nxt, next: () => this.go(i + 1), isLast: !nxt,
+      nextTop: crossing ? t.zoom : t.next,
+      nextLabel: nxt ? (crossing ? U.LEVELS.find(l => l.id === nxt.lv)[lang] : nxt[lang]) : '',
+      nextIcon: crossing ? 'ph-arrows-out' : 'ph-arrow-right',
+      flyHome: () => this.flyHome(), flyHomeTop: tx.flyHomeTop, flyHomeLabel: tx.flyHome,
+      bannerTop: this.state.bannerTop, bannerName: this.state.bannerName,
+      stickerFlyBg: url(this.state.stickerFlySrc),
+      welcome: this.state.welcome, welcomeTitle: tx.welcome(kid), welcomeSub: tx.welcomeSub, againLabel: tx.again,
+      homeVid: !!this.state.have.home, noHomeVid: !this.state.have.home, welcomeTextRef: this.welcomeTextRef, homeSrc: X.VID_DIR + 'Home.mp4',
+      again: () => this.setState({ welcome: false, pose: 'wave' }),
+      intro: this.state.intro, introTitle: tx.introTitle(kid), introSub: tx.introSub, letsFlyLabel: tx.letsFly, letsFly: () => this.letsFly(),
+      introVid: !!this.state.have.intro, introImg: !this.state.have.intro, introSrc: X.VID_DIR + 'Intro.mp4', introPoster: U.STOPS[0].img, introBg: url(U.STOPS[0].img),
+    };
+  }
+}
+</script>
+</body>
+</html>

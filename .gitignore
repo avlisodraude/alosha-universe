@@ -1,0 +1,9 @@
+# macOS / editor
+.DS_Store
+.idea/
+
+# Node (only appears if tooling is added later)
+node_modules/
+
+# Working screenshots, not used by the app
+scratch/
