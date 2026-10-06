@@ -31,11 +31,11 @@ const GAMES = {
 };
 const UI = {
   en: { game: 'Find it!', tryAgain: 'Try again!', yay: 'Yay! You got it!', stickers: 'My stickers', newSticker: 'New sticker!', flyHome: 'Fly home', flyHomeTop: 'The end', flyingHome: 'Flying home…',
-    welcome: n => n ? `Welcome home, ${n}!` : 'Welcome home!', welcomeSub: 'You flew all the way across the universe and back.', again: 'Fly again', close: 'Close',
-    introTitle: n => n ? `${n}’s trip through space` : 'A trip through space', introSub: 'With Cosmo, from Moscow to the whole universe', letsFly: 'Let’s fly!', locked: 'Play “Find it!” to win' },
+    welcome: n => n ? `Welcome home Alosha, ${n}!` : 'Welcome home Alosha!', welcomeSub: 'You flew all the way across the universe and back.', again: 'Fly again', close: 'Close',
+    introTitle: n => n ? `${n}’s trip through space` : 'A trip through space', introSub: 'With Alosha, from Moscow to the whole universe', letsFly: 'Let’s fly!', locked: 'Play “Find it!” to win' },
   ru: { game: 'Найди!', tryAgain: 'Попробуй ещё!', yay: 'Ура! Правильно!', stickers: 'Мои наклейки', newSticker: 'Новая наклейка!', flyHome: 'Домой', flyHomeTop: 'Конец пути', flyingHome: 'Летим домой…',
-    welcome: n => n ? `С возвращением, ${n}!` : 'С возвращением домой!', welcomeSub: 'Ты пролетел через всю Вселенную и вернулся домой.', again: 'Ещё раз', close: 'Закрыть',
-    introTitle: n => n ? `${n} летит в космос` : 'Путешествие в космос', introSub: 'Вместе с Космо — от Москвы до всей Вселенной', letsFly: 'Полетели!', locked: 'Сыграй в «Найди!»' },
+    welcome: n => n ? `С возвращением, ${n} Alosha!` : 'С возвращением домой Alosha!', welcomeSub: 'Ты пролетел через всю Вселенную и вернулся домой.', again: 'Ещё раз', close: 'Закрыть',
+    introTitle: n => n ? `${n} летит в космос` : 'Путешествие в космос', introSub: 'Вместе с Алёшей — от Москвы до всей Вселенной', letsFly: 'Полетели!', locked: 'Сыграй в «Найди!»' },
 };
 
 // Google Veo prompts

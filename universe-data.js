@@ -124,7 +124,7 @@ const STYLE = {
   wide: 'Landscape 3:2, 1536×1024.',
   square: 'Square 1:1, 1024×1024.',
 };
-const MASCOT = { id: 'mascot', en: 'Cosmo (guide)', ru: 'Космо',
+const MASCOT = { id: 'mascot', en: 'Alosha (guide)', ru: 'Алёша',
   prompt: 'Cosmo, a small round friendly rocket character with big expressive eyes and a warm smile, white and soft lavender body, little fins used as arms, waving hello, a small puff of flame at the bottom. Full body, centered.' };
 const fullPrompt = (s, square) => [s.prompt, STYLE.base, s.scene ? STYLE.scene : STYLE.iso, STYLE.notext, square ? STYLE.square : STYLE.wide].join(' ');
 const IMG = {"earth":"Earth","moscow":"Moscow","russia":"Russia","moon":"Moon","sun":"Sun","mercury":"Mercury","venus":"Venus","mars":"Mars","asteroids":"asteroids","jupiter":"Jupiter","saturn":"Saturn","uranus":"Uranus","neptune":"Neptune","pluto":"Pluto","universe":"Universe"};

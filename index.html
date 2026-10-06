@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- icon Safari uses for "Add to Home Screen" (iPad/iPhone) -->
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<!-- opened from the Home Screen icon, run like an app: no Safari address bar or tabs -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Universe">
 <script src="./support.js"></script>
 </head>
 <body>
@@ -17,7 +22,7 @@
 <script src="./image-slot.js"></script>
 <script src="./keyed-sprite.js?v=2"></script>
 <script src="./universe-data.js"></script>
-<script src="./universe-extras.js?v=3"></script>
+<script src="./universe-extras.js?v=4"></script>
 <style>
 html, body { margin: 0; height: 100%; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow: hidden; }
 a { color: var(--color-accent); } a:hover { color: var(--color-accent-300); }
@@ -236,7 +241,7 @@ video::-webkit-media-controls-start-playback-button, video::-webkit-media-contro
         </div>
         </sc-if>
         <div style="position: absolute; left: 96px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 20px;">
-          <span style="font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent);">Cosmo · Космо</span>
+          <span style="font-size: 16px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent);">Alosha · Алёша</span>
           <h1 style="margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 80px; line-height: 1; letter-spacing: -0.03em; text-wrap: balance;">{{ introTitle }}</h1>
           <p style="margin: 0; font-size: 26px; line-height: 1.4; color: var(--color-neutral-100); text-wrap: pretty;">{{ introSub }}</p>
           <div style="display: flex; align-items: center; gap: 14px; margin-top: 12px;">
