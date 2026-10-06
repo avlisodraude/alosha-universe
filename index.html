@@ -916,7 +916,7 @@ class Component extends DCLogic {
       }),
       isEn: lang === 'en', isRu: lang === 'ru',
       setEn: () => this.setState({ lang: 'en' }), setRu: () => this.setState({ lang: 'ru' }),
-      backLabel: t.back, home: () => this.go(0),
+      backLabel: t.back, home: () => this.flyHome(),
       prev: () => this.go(i - 1), noPrev: i === 0,
       hasNext: !!nxt, next: () => this.go(i + 1), isLast: !nxt,
       nextTop: crossing ? t.zoom : t.next,
