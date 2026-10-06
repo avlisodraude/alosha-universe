@@ -1,6 +1,8 @@
 (function () {
 const IMG_DIR = 'uploads/Universe-images/', VID_DIR = 'uploads/Universe-videos/';
 const VIDEO = { moscow: 'Moscow', russia: 'Russia', earth: 'Earth', moon: 'Moon', sun: 'Sun', mercury: 'Mercury', venus: 'Venus', mars: 'Mars', asteroids: 'Asteroids', jupiter: 'Jupiter', saturn: 'Saturn', uranus: 'Uranus', neptune: 'Neptune', pluto: 'Pluto', milkyway: 'MilkyWay', andromeda: 'Andromeda', universe: 'Universe' };
+// picture file names that differ from the clip name (file names are case-sensitive once the page is hosted)
+const IMG = { asteroids: 'asteroids' };
 const POSES = { wave: 'Cosmo-wave', point: 'Cosmo-point', cheer: 'Cosmo-cheer', fly: 'Cosmo-fly' };
 const RED = '#e0453a', BLUE = '#4f8fe0', YEL = '#f2c94c', GRN = '#5aa85a', SAND = '#e3c08a', MARS = '#d9653b';
 const C = (en, ru, x) => Object.assign({ en, ru }, x);
@@ -83,5 +85,5 @@ const MJ = {
   scene: '--motion low --bs 4',
   guard: 'Static camera, wide shot, no zoom. The rocket keeps exactly the same shape and design, it never changes into another object. The boy stays the same size and his hands stay inside the round window.',
 };
-window.UNIVERSE_X = { MJ, IMG_DIR, VID_DIR, VIDEO, POSES, GAMES, UI, VIDEOS, VSTYLE, VLOOP, VSCENE, POSE_PROMPTS, posePrompt };
+window.UNIVERSE_X = { MJ, IMG_DIR, VID_DIR, VIDEO, IMG, POSES, GAMES, UI, VIDEOS, VSTYLE, VLOOP, VSCENE, POSE_PROMPTS, posePrompt };
 })();

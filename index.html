@@ -13,13 +13,15 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <script src="_ds/nocturne-40341bcb-e9d8-4a2c-b237-c60113ad70e0/_ds_bundle.js"></script>
 <script src="./image-slot.js"></script>
-<script src="./keyed-sprite.js"></script>
+<script src="./keyed-sprite.js?v=2"></script>
 <script src="./universe-data.js"></script>
-<script src="./universe-extras.js"></script>
+<script src="./universe-extras.js?v=2"></script>
 <style>
 html, body { margin: 0; height: 100%; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow: hidden; }
 a { color: var(--color-accent); } a:hover { color: var(--color-accent-300); }
 button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+/* iOS draws a big play button over a clip it refuses to autoplay (Low Power Mode etc.); the poster is enough */
+video::-webkit-media-controls-start-playback-button, video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; }
 </style>
 </helmet>
 <div ref="{{ wrapRef }}" style="position: fixed; inset: 0; overflow: hidden; background: var(--color-bg);">
@@ -36,7 +38,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
           <div ref="{{ wigRef }}" onPointerDown="{{ wiggle }}" style="width: 100%; height: 100%; border-radius: 32px; overflow: hidden;">
             <sc-for list="{{ stops }}" as="s" hint-placeholder-count="0">
               <sc-if value="{{ s.showVideo }}">
-                <video ref="{{ videoRef }}" src="{{ s.video }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+                <video ref="{{ videoRef }}" src="{{ s.video }}" poster="{{ s.poster }}" autoPlay="{{ true }}" muted="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
               </sc-if>
               <sc-if value="{{ s.showSlot }}">
                 <image-slot id="v2-{{ s.id }}" shape="rounded" radius="32" src="{{ s.src }}" placeholder="{{ s.ph }}"></image-slot>
@@ -87,7 +89,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <div style="position: absolute; left: 128px; bottom: 36px; width: 600px; display: flex; align-items: flex-end; gap: 14px;">
         <div ref="{{ mascotBobRef }}" data-sprite-host style="flex: none; width: 128px; height: 176px;">
           <div ref="{{ mascotRef }}" onClick="{{ mascotTap }}" style="width: 128px; height: 176px; cursor: pointer;">
-            <keyed-sprite src="{{ mascotSrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+            <keyed-sprite src="{{ mascotSrc }}" poster="{{ mascotPoster }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
           </div>
         </div>
         <div class="card" style="flex: 1; min-width: 0; padding: 18px 20px 14px; gap: 12px; border-radius: 22px 22px 22px 6px; background: color-mix(in srgb, var(--color-surface) 92%, transparent); border: 1px solid var(--color-neutral-700); box-shadow: var(--shadow-md);">
@@ -154,7 +156,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
     </div>
 
     <div ref="{{ flyRef }}" data-sprite-host style="position: absolute; left: 0; top: 0; width: 150px; height: 220px; opacity: 0; pointer-events: none;">
-      <keyed-sprite src="{{ flySrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+      <keyed-sprite src="{{ flySrc }}" poster="{{ flyPoster }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
     </div>
     <canvas ref="{{ fxRef }}" style="position: absolute; inset: 0; width: 1180px; height: 820px; pointer-events: none;"></canvas>
     <div ref="{{ stickerFlyRef }}" style="position: absolute; left: 770px; top: 300px; width: 120px; height: 120px; border-radius: 60px; overflow: hidden; border: 3px solid var(--color-accent); box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 60%, transparent); background: var(--color-neutral-900); opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;">
@@ -194,7 +196,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <div style="position: absolute; inset: 0; background: var(--color-bg);">
         <sc-if value="{{ homeVid }}">
           <div class="lighten" style="position: absolute; inset: 0;">
-            <video ref="{{ videoRef }}" src="{{ homeSrc }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+            <video ref="{{ videoRef }}" src="{{ homeSrc }}" poster="{{ homePoster }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </div>
           <div style="position: absolute; inset: 0; background: linear-gradient(to right, color-mix(in srgb, var(--color-bg) 90%, transparent), color-mix(in srgb, var(--color-bg) 55%, transparent) 42%, transparent 60%);"></div>
         </sc-if>
@@ -216,7 +218,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
       <div ref="{{ introRef }}" style="position: absolute; inset: 0; background: var(--color-bg);">
         <div class="lighten" style="position: absolute; inset: 0;">
           <sc-if value="{{ introVid }}">
-            <video ref="{{ introVidRef }}" src="{{ introSrc }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
+            <video ref="{{ introVidRef }}" src="{{ introSrc }}" poster="{{ introPoster }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="width: 100%; height: 100%; object-fit: cover; display: block;"></video>
           </sc-if>
           <sc-if value="{{ introImg }}">
             <span style="display: block; width: 100%; height: 100%; background-position: center; background-repeat: no-repeat; background-size: cover; background-image: {{ introBg }};"></span>
@@ -225,7 +227,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
         <div style="position: absolute; inset: 0; background: linear-gradient(to right, color-mix(in srgb, var(--color-bg) 88%, transparent), color-mix(in srgb, var(--color-bg) 50%, transparent) 45%, transparent 62%);"></div>
         <sc-if value="{{ introImg }}">
         <div ref="{{ introCosmoRef }}" data-sprite-host style="position: absolute; right: 120px; top: 150px; width: 300px; height: 440px;">
-          <keyed-sprite src="{{ waveSrc }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
+          <keyed-sprite src="{{ waveSrc }}" poster="{{ wavePoster }}" fallback="{{ cosmoCut }}" style="display: block; width: 100%; height: 100%;"></keyed-sprite>
         </div>
         </sc-if>
         <div style="position: absolute; left: 96px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 20px;">
@@ -272,6 +274,10 @@ class Component extends DCLogic {
     else this.probe();
     this.onResize = () => this.fit();
     window.addEventListener('resize', this.onResize);
+    // Autoplay can be refused (iPad/iPhone in Low Power Mode, a per-site "never auto-play" setting).
+    // A tap is always allowed to start playback, so every tap restarts whatever clip is sitting on its poster.
+    this.kick = () => document.querySelectorAll('video').forEach(v => { if (v.paused && !v.ended && v.getAttribute('src')) { const p = v.play(); p && p.catch(() => {}); } });
+    ['touchend', 'pointerup', 'click', 'keydown'].forEach(t => window.addEventListener(t, this.kick, true));
     this.fit(); this.startStars(); this.setupFx();
   }
   componentDidUpdate() { this.fit(); }
@@ -279,14 +285,24 @@ class Component extends DCLogic {
     clearInterval(this.poll); clearInterval(this.musicTimer); cancelAnimationFrame(this.fitRaf);
     [this.starRaf, this.mapRaf, this.countRaf, this.fxRaf].forEach(r => cancelAnimationFrame(r));
     window.removeEventListener('resize', this.onResize); this.ro && this.ro.disconnect();
+    ['touchend', 'pointerup', 'click', 'keydown'].forEach(t => window.removeEventListener(t, this.kick, true));
     window.speechSynthesis && window.speechSynthesis.cancel();
     this.actx && this.actx.close();
   }
   async probe() {
     const U = this.U(), X = this.X(), list = {};
-    U.STOPS.filter(s => !s.map).forEach(s => { list['v:' + s.id] = X.VID_DIR + X.VIDEO[s.id] + '.mp4'; if (s.video) list['v0:' + s.id] = s.video; if (!s.img) list['img:' + s.id] = X.IMG_DIR + X.VIDEO[s.id] + '.png'; });
-    Object.keys(X.POSES).forEach(p => { list['pose:' + p] = X.IMG_DIR + X.POSES[p] + '.png'; list['posev:' + p] = X.VID_DIR + X.POSES[p] + '.mp4'; });
-    list.intro = X.VID_DIR + 'Intro.mp4'; list.home = X.VID_DIR + 'Home.mp4';
+    // Every clip has a still of its first frame in VID_DIR/posters/. The still is what you see until the
+    // clip actually plays: while it buffers, or for good when the browser refuses to autoplay (iPad/iPhone
+    // in Low Power Mode). Without it the picture area is simply empty there.
+    const PST = X.VID_DIR + 'posters/';
+    U.STOPS.filter(s => !s.map).forEach(s => {
+      const n = X.VIDEO[s.id];
+      list['v:' + s.id] = X.VID_DIR + n + '.mp4'; list['p:' + s.id] = PST + n + '.jpg';
+      if (s.video) list['v0:' + s.id] = s.video;
+      if (!s.img) list['img:' + s.id] = X.IMG_DIR + ((X.IMG && X.IMG[s.id]) || n) + '.png';
+    });
+    Object.keys(X.POSES).forEach(p => { list['pose:' + p] = X.IMG_DIR + X.POSES[p] + '.png'; list['posev:' + p] = X.VID_DIR + X.POSES[p] + '.mp4'; list['posep:' + p] = PST + X.POSES[p] + '.jpg'; });
+    list.intro = X.VID_DIR + 'Intro.mp4'; list.home = X.VID_DIR + 'Home.mp4'; list.introP = PST + 'Intro.jpg'; list.homeP = PST + 'Home.jpg';
     const have = {};
     // Does the file exist? Ask the server first (quick). fetch() is refused outright
     // when the page is opened from disk (file://), and some dev servers reject HEAD,
@@ -302,11 +318,14 @@ class Component extends DCLogic {
     await Promise.all(Object.entries(list).map(async ([k, url]) => {
       try {
         const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-        have[k] = r.ok ? true : r.status === 404 ? false : await loads(url);
+        // Some hosts (Cloudflare Pages without a 404 page) answer 200 + the HTML page for a file that
+        // is not there, so "ok" alone is not proof: a missing clip/picture comes back as text/html.
+        const html = /text\/html/i.test(r.headers.get('content-type') || '');
+        have[k] = r.ok ? !html : r.status === 404 ? false : await loads(url);
       } catch (e) { have[k] = await loads(url); }
     }));
     U.STOPS.forEach(s => {
-      if (have['v:' + s.id]) have['vurl:' + s.id] = list['v:' + s.id];
+      if (have['v:' + s.id]) { have['vurl:' + s.id] = list['v:' + s.id]; if (have['p:' + s.id]) have['purl:' + s.id] = list['p:' + s.id]; }
       else if (have['v0:' + s.id]) have['vurl:' + s.id] = list['v0:' + s.id];
       if (!s.img && have['img:' + s.id]) s.img = list['img:' + s.id];
     });
@@ -797,6 +816,8 @@ class Component extends DCLogic {
     return this.state.have['pose:' + p] ? X.IMG_DIR + X.POSES[p] + '.png' : U.MASCOT.img;
   }
   poseVid(p) { const X = this.X(); return this.state.have['posev:' + p] ? X.VID_DIR + X.POSES[p] + '.mp4' : ''; }
+  // still shown until the pose clip plays (first frame of the clip; failing that, the plain still)
+  posePoster(p) { const X = this.X(); return this.state.have['posep:' + p] ? X.VID_DIR + 'posters/' + X.POSES[p] + '.jpg' : this.poseSrc(p); }
 
   renderVals() {
     const U = this.U(), X = this.X();
@@ -817,12 +838,13 @@ class Component extends DCLogic {
       isMap: !!st.map, isPic: !st.map && !this.state.showCount && !this.state.game, showCount: this.state.showCount,
       stops: U.STOPS.filter(s => !s.map).map(s => {
         const vurl = this.state.have['vurl:' + s.id], hasVid = !!vurl, active = s.id === st.id;
-        return { id: s.id, src: s.img, video: vurl || '', showVideo: active && hasVid, showSlot: active && !hasVid, ph: `${t.drop} · ${s[lang]}` };
+        return { id: s.id, src: s.img, video: vurl || '', poster: this.state.have['purl:' + s.id] || s.img || '', showVideo: active && hasVid, showSlot: active && !hasVid, ph: `${t.drop} · ${s[lang]}` };
       }),
       // Cosmo is drawn by <keyed-sprite>: pose clip if there is one, else the still
       mascotSrc: this.poseVid(this.state.pose) || this.poseSrc(this.state.pose),
       cosmoCut: X.IMG_DIR + 'Cosmo-cutout.png', // pre-cut still with real transparency, used when the page is opened from disk
       flySrc: this.poseVid('fly') || this.poseSrc('fly'), waveSrc: this.poseVid('wave') || this.poseSrc('wave'),
+      mascotPoster: this.posePoster(this.state.pose), flyPoster: this.posePoster('fly'), wavePoster: this.posePoster('wave'),
       kicker: `${lvl[lang]} · ${t.stop(i + 1, U.STOPS.length)}`,
       title: st[lang], mapHint: t.mapHint,
       itemText: it.text, itemKicker: it.kicker, itemIcon: it.icon,
@@ -873,10 +895,10 @@ class Component extends DCLogic {
       bannerTop: this.state.bannerTop, bannerName: this.state.bannerName,
       stickerFlyBg: url(this.state.stickerFlySrc),
       welcome: this.state.welcome, welcomeTitle: tx.welcome(kid), welcomeSub: tx.welcomeSub, againLabel: tx.again,
-      homeVid: !!this.state.have.home, noHomeVid: !this.state.have.home, welcomeTextRef: this.welcomeTextRef, homeSrc: X.VID_DIR + 'Home.mp4',
+      homeVid: !!this.state.have.home, noHomeVid: !this.state.have.home, welcomeTextRef: this.welcomeTextRef, homeSrc: X.VID_DIR + 'Home.mp4', homePoster: this.state.have.homeP ? X.VID_DIR + 'posters/Home.jpg' : '',
       again: () => this.setState({ welcome: false, pose: 'wave' }),
       intro: this.state.intro, introTitle: tx.introTitle(kid), introSub: tx.introSub, letsFlyLabel: tx.letsFly, letsFly: () => this.letsFly(),
-      introVid: !!this.state.have.intro, introImg: !this.state.have.intro, introSrc: X.VID_DIR + 'Intro.mp4', introPoster: U.STOPS[0].img, introBg: url(U.STOPS[0].img),
+      introVid: !!this.state.have.intro, introImg: !this.state.have.intro, introSrc: X.VID_DIR + 'Intro.mp4', introPoster: this.state.have.introP ? X.VID_DIR + 'posters/Intro.jpg' : U.STOPS[0].img || '', introBg: url(U.STOPS[0].img),
     };
   }
 }

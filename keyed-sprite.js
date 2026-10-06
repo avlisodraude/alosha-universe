@@ -11,6 +11,11 @@
 // details inside the character (mouth, shadows in the hatch) are kept. The dim
 // fringe of glows and flames fades out softly instead of being cut hard.
 //
+// `poster` names a still (normally the clip's first frame). It is drawn, cut out
+// the same way, until the clip delivers its first frame. On iPad/iPhone a clip
+// may never start on its own (Low Power Mode blocks autoplay) and without the
+// still the character would just be missing. Any tap starts the clips again.
+//
 // Browsers refuse to hand over the pixels when the page is opened straight from
 // disk (file://). In that case the element shows the image named in `fallback`
 // instead: a pre-cut PNG that already has real transparency. Only if that is
@@ -23,6 +28,11 @@
   const HI = 72;   // at or above this a pixel is solid; in between it fades
   const MAX_SIDE = 720;
   let seen = new Uint8Array(0), stack = new Int32Array(0);
+
+  // a tap is always allowed to start playback, even where autoplay is refused
+  const live = new Set();
+  const kick = () => live.forEach(s => { const v = s.vid; if (v && v.paused && !s.failed) { const p = v.play(); p && p.catch(() => {}); } });
+  ['touchend', 'pointerup', 'click', 'keydown'].forEach(t => window.addEventListener(t, kick, true));
 
   function key(img) {
     const d = img.data, w = img.width, h = img.height, n = w * h;
@@ -54,7 +64,7 @@
   }
 
   class KeyedSprite extends HTMLElement {
-    static get observedAttributes() { return ['src', 'fallback']; }
+    static get observedAttributes() { return ['src', 'poster', 'fallback']; }
     constructor() {
       super();
       const root = this.attachShadow({ mode: 'open' });
@@ -71,7 +81,7 @@
     attributeChangedCallback(name, a, b) { if (a !== b && this.isConnected) this.load(); }
 
     stop() {
-      this.gen++;
+      this.gen++; live.delete(this);
       cancelAnimationFrame(this.raf);
       if (this.vid) { try { this.vid.pause(); } catch (e) {} this.vid.remove(); this.vid = null; }
       if (this.raw) { this.raw.remove(); this.raw = null; }
@@ -89,12 +99,20 @@
         v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.preload = 'auto';
         v.src = src;
         this.shadowRoot.appendChild(v);
-        let last = -1, nag = 0;
+        live.add(this);
+        let last = -1, nag = 0, live1 = false;
+        const poster = this.getAttribute('poster');
+        if (poster) {
+          const im = new Image();
+          // only while the clip has shown nothing yet; re-measure afterwards, the still may have another size
+          im.onload = () => { if (gen === this.gen && !live1 && !this.failed) { this.paint(im, im.naturalWidth, im.naturalHeight); this.sized = false; } };
+          im.src = poster;
+        }
         const tick = () => {
           if (gen !== this.gen) return;
           if (v.paused && !document.hidden && ++nag % 30 === 1) { const p = v.play(); p && p.catch(() => {}); }
           if (v.readyState >= 2 && v.videoWidth && v.currentTime !== last) {
-            last = v.currentTime;
+            last = v.currentTime; live1 = true;
             this.paint(v, v.videoWidth, v.videoHeight);
           }
           if (!this.failed) this.raf = requestAnimationFrame(tick);
