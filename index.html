@@ -17,7 +17,7 @@
 <script src="./image-slot.js"></script>
 <script src="./keyed-sprite.js?v=2"></script>
 <script src="./universe-data.js"></script>
-<script src="./universe-extras.js?v=2"></script>
+<script src="./universe-extras.js?v=3"></script>
 <style>
 html, body { margin: 0; height: 100%; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); overflow: hidden; }
 a { color: var(--color-accent); } a:hover { color: var(--color-accent-300); }
@@ -264,7 +264,7 @@ class Component extends DCLogic {
   stageRef = React.createRef(); contentRef = React.createRef(); starsRef = React.createRef(); fxRef = React.createRef();
   bannerRef = React.createRef(); wigRef = React.createRef(); bubbleRef = React.createRef(); mascotRef = React.createRef(); numRef = React.createRef();
   flyRef = React.createRef(); stickerFlyRef = React.createRef(); stickerBtnRef = React.createRef(); introRef = React.createRef(); gameMsgRef = React.createRef();
-  particles = [];
+  particles = []; voiceN = 0;
 
   loadStickers() { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch (e) { return []; } }
   calm() { return !!this.props.calmMotion; }
@@ -281,7 +281,7 @@ class Component extends DCLogic {
     window.addEventListener('resize', this.onResize);
     // Autoplay can be refused (iPad/iPhone in Low Power Mode, a per-site "never auto-play" setting).
     // A tap is always allowed to start playback, so every tap restarts whatever clip is sitting on its poster.
-    this.kick = () => document.querySelectorAll('video').forEach(v => { if (v.paused && !v.ended && v.getAttribute('src')) { const p = v.play(); p && p.catch(() => {}); } });
+    this.kick = () => { this.primeVoice(); document.querySelectorAll('video').forEach(v => { if (v.paused && !v.ended && v.getAttribute('src')) { const p = v.play(); p && p.catch(() => {}); } }); };
     ['touchend', 'pointerup', 'click', 'keydown'].forEach(t => window.addEventListener(t, this.kick, true));
     this.fit(); this.startStars(); this.setupFx();
   }
@@ -291,7 +291,7 @@ class Component extends DCLogic {
     [this.starRaf, this.mapRaf, this.countRaf, this.fxRaf].forEach(r => cancelAnimationFrame(r));
     window.removeEventListener('resize', this.onResize); this.ro && this.ro.disconnect();
     ['touchend', 'pointerup', 'click', 'keydown'].forEach(t => window.removeEventListener(t, this.kick, true));
-    window.speechSynthesis && window.speechSynthesis.cancel();
+    this.hush();
     this.actx && this.actx.close();
   }
   async probe() {
@@ -535,7 +535,7 @@ class Component extends DCLogic {
     const fwd = n > this.state.i, from = U.STOPS[this.state.i], to = U.STOPS[n];
     const crossing = from.lv !== to.lv, calm = this.calm(), lang = this.lang();
     this.busy = true;
-    window.speechSynthesis && window.speechSynthesis.cancel();
+    this.hush();
     cancelAnimationFrame(this.countRaf);
     this.sfx('whoosh', { back: !fwd, long: crossing });
     this.flyCosmo(fwd, crossing);
@@ -577,7 +577,7 @@ class Component extends DCLogic {
     setTimeout(() => {
       this.sfx('chime'); setTimeout(() => this.sfx('sparkle'), 300);
       [[300, 420], [900, 380], [600, 260]].forEach((p, k) => setTimeout(() => this.burst(p[0], p[1], 110), k * 380));
-      if (this.props.autoRead !== false) this.speakText(t.welcome(this.kid()));
+      if (this.props.autoRead !== false) this.speakText(t.welcome(this.kid()), this.kid() ? null : 'ui-welcome');
     }, delay);
   }
 
@@ -601,7 +601,33 @@ class Component extends DCLogic {
     const m = this.mascotRef.current; if (!m || this.calm()) return;
     m.animate([{ transform: 'translateY(0) rotate(0)' }, { transform: 'translateY(-22px) rotate(-8deg)', offset: 0.4 }, { transform: 'translateY(0) rotate(4deg)', offset: 0.75 }, { transform: 'translateY(0) rotate(0)' }], { duration: 520, easing: 'ease-out' });
   }
-  speakText(text) {
+  // Recorded narration (see VOICE in universe-extras.js). A line without a recording — a language that has
+  // none, a missing file, the welcome with the child's name in it — is read by the browser's own voice.
+  speakText(text, id) {
+    this.hush();
+    const V = this.X().VOICE, lang = this.lang();
+    if (!id || !V || !V.langs.includes(lang)) return this.browserVoice(text);
+    const a = this.voiceEl || (this.voiceEl = new Audio()), n = this.voiceN;
+    let fell = false;
+    const fallback = () => { if (!fell && n === this.voiceN) { fell = true; this.browserVoice(text); } };
+    a.onerror = fallback;
+    a.src = `${V.dir}${lang}/${id}.mp3`;
+    const p = a.play(); p && p.catch(e => { if (e && e.name !== 'AbortError') fallback(); });
+  }
+  hush() {
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    this.voiceN++;
+    if (this.voiceEl) { this.voiceEl.onerror = null; this.voiceEl.pause(); }
+  }
+  // iPad/iPhone only let a sound start from a tap. Playing a moment of silence on the first tap unlocks this
+  // one audio element, so later lines (the welcome home, auto-read) can start on their own.
+  primeVoice() {
+    if (this.voiceEl || !(this.X() && this.X().VOICE)) return;
+    const a = this.voiceEl = new Audio();
+    a.src = 'data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQgAAACAgICAgICAgA==';
+    const p = a.play(); p && p.catch(() => {});
+  }
+  browserVoice(text) {
     const ss = window.speechSynthesis; if (!ss) return;
     ss.cancel();
     const lang = this.lang(), u = new SpeechSynthesisUtterance(text);
@@ -610,8 +636,8 @@ class Component extends DCLogic {
     ss.speak(u);
   }
   speakCurrent() {
-    const it = this.items()[this.state.f], st = this.cur();
-    this.speakText((this.state.f === 0 ? st[this.lang()] + '. ' : '') + it.text);
+    const f = this.state.f, it = this.items()[f], st = this.cur();
+    this.speakText((f === 0 ? st[this.lang()] + '. ' : '') + it.text, `${st.id}-${it.size ? 'size' : 'fact' + (f + 1)}`);
   }
 
   // ── Find it! game + stickers ──
@@ -619,7 +645,7 @@ class Component extends DCLogic {
     const g = this.X().GAMES[this.cur().id]; if (!g) return;
     this.sfx('pop');
     this.setState({ game: true, gameMsg: '', gameWon: false, showCount: false, pose: 'point' });
-    if (this.props.autoRead) this.speakText(g.q[this.lang() === 'en' ? 0 : 1]);
+    if (this.props.autoRead) this.speakText(g.q[this.lang() === 'en' ? 0 : 1], this.cur().id + '-game');
   }
   choose(k, e) {
     if (this.state.gameWon) return;
@@ -634,7 +660,7 @@ class Component extends DCLogic {
     this.sfx('chime'); this.burst(p.x, p.y, 100);
     if (!this.calm()) btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], { duration: 500, easing: 'cubic-bezier(.2,.9,.3,1.4)' });
     this.setState({ gameWon: true, gameMsg: t.yay, pose: 'cheer' });
-    this.speakText(t.yay);
+    this.speakText(t.yay, 'ui-yay');
     this.giveSticker(this.cur());
     setTimeout(() => this.setState(s => (s.pose === 'cheer' && !s.welcome ? { pose: 'wave' } : null)), 2600);
   }

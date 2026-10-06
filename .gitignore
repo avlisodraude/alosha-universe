@@ -7,3 +7,6 @@ node_modules/
 
 # Working screenshots, not used by the app
 scratch/
+
+# Secrets (ElevenLabs API key)
+.env
